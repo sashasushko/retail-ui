@@ -2,8 +2,8 @@ import * as React from 'react';
 import { ChangeEvent, FocusEvent, KeyboardEvent } from 'react';
 import * as ReactDOM from 'react-dom';
 import TextWidthHelper from './TextWidthHelper';
-import { TokensTokens } from './TokensTokens';
-import { TokensMenu } from './TokensMenu';
+import TokensField from './TokensField';
+import TokensMenu from './TokensMenu';
 import { TokensInputAction, tokensReducer } from './TokensReducer';
 import LayoutEvents from '../../lib/LayoutEvents';
 import styles from './Tokens.less';
@@ -67,15 +67,15 @@ export class Tokens<T = string> extends React.Component<
     );
   }
 
+  get isCursorVisible() {
+    return this.isCursorVisibleForState(this.state);
+  }
+
   isCursorVisibleForState(state: TokensState<T>) {
     return (
       state.inFocus &&
       (state.inputValue !== '' || state.activeTokens.length === 0)
     );
-  }
-
-  get isCursorVisible() {
-    return this.isCursorVisibleForState(this.state);
   }
 
   state: TokensState<T> = {
@@ -154,7 +154,7 @@ export class Tokens<T = string> extends React.Component<
           onMouseDown={this.handleWrapperMouseDown}
           onMouseUp={this.handleWrapperMouseUp}
         >
-          <TokensTokens
+          <TokensField
             selectedItems={this.props.selectedItems}
             activeTokens={this.state.activeTokens}
             renderValue={this.props.renderValue}
@@ -205,11 +205,13 @@ export class Tokens<T = string> extends React.Component<
   };
 
   private updateInputTextWidth() {
-    const inputValueWidth = this.textHelperRef.current!.getTextWidth();
-    this.dispatch(
-      { type: 'SET_INPUT_VALUE_WIDTH', payload: inputValueWidth },
-      LayoutEvents.emit
-    );
+    if (this.textHelperRef.current) {
+      const inputValueWidth = this.textHelperRef.current.getTextWidth();
+      this.dispatch(
+        { type: 'SET_INPUT_VALUE_WIDTH', payload: inputValueWidth },
+        LayoutEvents.emit
+      );
+    }
   }
 
   private handleInputFocus = () => {
@@ -267,6 +269,7 @@ export class Tokens<T = string> extends React.Component<
       return;
     }
     event.preventDefault();
+
     // упорядочивание токенов по индексу
     const tokens = this.state.activeTokens
       .map(token => this.props.selectedItems.indexOf(token))

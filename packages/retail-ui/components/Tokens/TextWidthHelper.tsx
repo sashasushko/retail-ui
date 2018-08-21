@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { RenderContainer } from '../all';
 
-interface Props {
+export interface TextWidthHelperProps {
   text?: string;
 }
 
@@ -12,7 +12,9 @@ const styles: React.CSSProperties = {
   fontSize: 14
 };
 
-export default class TextWidthHelper extends React.Component<Props> {
+export default class TextWidthHelper extends React.Component<
+  TextWidthHelperProps
+> {
   private elementRef = React.createRef<HTMLDivElement>();
 
   render() {

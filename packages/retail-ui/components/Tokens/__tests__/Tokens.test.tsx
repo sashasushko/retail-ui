@@ -14,19 +14,9 @@ describe('<Tokens />', () => {
         getItems={getItems}
         selectedItems={[]}
         onChange={onChange}
-        placeholder={'Placeholder'}
+        placeholder="Placeholder"
       />
     );
     expect(wrapper.find('input').props().placeholder).toBe('Placeholder');
-  });
-
-  it('should call onChange', () => {
-    const onChange = jest.fn();
-    const wrapper = mount(
-      <Tokens getItems={getItems} selectedItems={[]} onChange={onChange} />
-    );
-    expect(wrapper.find('aaa')).toHaveLength(0);
-    wrapper.simulate('click');
-    expect(wrapper.find('aaa')).toHaveLength(1);
   });
 });

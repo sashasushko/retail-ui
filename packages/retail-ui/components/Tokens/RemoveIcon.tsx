@@ -1,11 +1,11 @@
 import * as React from 'react';
 
-interface Props {
+export interface RemoveIconProps {
   className?: string;
   onClick?: React.MouseEventHandler<SVGElement>;
 }
 
-const RemoveIcon = (props: Props) => (
+const RemoveIcon = (props: RemoveIconProps) => (
   <svg
     {...props}
     fillRule="evenodd"

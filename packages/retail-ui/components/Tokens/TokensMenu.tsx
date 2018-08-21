@@ -18,7 +18,7 @@ export interface TokensMenuProps<T> {
   showAddItemHint?: boolean;
 }
 
-export class TokensMenu<T> extends React.Component<TokensMenuProps<T>> {
+export default class TokensMenu<T> extends React.Component<TokensMenuProps<T>> {
   private menuRef = React.createRef<Menu>();
 
   render() {

@@ -11,10 +11,9 @@ interface Props<T> {
   onTokenClick: (event: React.MouseEvent<HTMLElement>, item: T) => void;
 }
 
-export class TokensTokens<T> extends React.Component<Props<T>> {
+export default class TokensField<T> extends React.Component<Props<T>> {
   render(): JSX.Element {
     const renderValue = this.props.renderValue || ((item: T) => item);
-
     return (
       <>
         {this.props.selectedItems.map(item => {
@@ -28,7 +27,6 @@ export class TokensTokens<T> extends React.Component<Props<T>> {
           const handleTokenClick: React.MouseEventHandler<
             HTMLDivElement
           > = event => {
-            // event.preventDefault();
             event.stopPropagation();
             this.props.onTokenClick(event, item);
           };
