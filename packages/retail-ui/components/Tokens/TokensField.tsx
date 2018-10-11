@@ -12,39 +12,30 @@ interface Props<T> {
 }
 
 export default class TokensField<T> extends React.Component<Props<T>> {
-  render(): JSX.Element {
+  public render() {
     const renderValue = this.props.renderValue || ((item: T) => item);
-    return (
-      <>
-        {this.props.selectedItems.map(item => {
-          const isSelected = this.props.activeTokens.indexOf(item) !== -1;
-          const handleIconClick: React.MouseEventHandler<
-            SVGElement
-          > = event => {
-            event.stopPropagation();
-            this.props.onRemoveToken(item);
-          };
-          const handleTokenClick: React.MouseEventHandler<
-            HTMLDivElement
-          > = event => {
-            event.stopPropagation();
-            this.props.onTokenClick(event, item);
-          };
-          return (
-            <div
-              key={undefined}
-              onClick={handleTokenClick}
-              className={cn(styles.token, { [styles.tokenActive]: isSelected })}
-            >
-              {renderValue(item)}
-              <RemoveIcon
-                className={styles.removeIcon}
-                onClick={handleIconClick}
-              />
-            </div>
-          );
-        })}
-      </>
-    );
+    return this.props.selectedItems.map((item, index) => {
+      const isSelected = this.props.activeTokens.indexOf(item) !== -1;
+      const handleIconClick: React.MouseEventHandler<SVGElement> = event => {
+        event.stopPropagation();
+        this.props.onRemoveToken(item);
+      };
+      const handleTokenClick: React.MouseEventHandler<
+        HTMLDivElement
+      > = event => {
+        event.stopPropagation();
+        this.props.onTokenClick(event, item);
+      };
+      return (
+        <div
+          key={index}
+          onClick={handleTokenClick}
+          className={cn(styles.token, { [styles.tokenActive]: isSelected })}
+        >
+          {renderValue(item)}
+          <RemoveIcon className={styles.removeIcon} onClick={handleIconClick} />
+        </div>
+      );
+    });
   }
 }

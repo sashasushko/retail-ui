@@ -8,6 +8,7 @@ import { TokensInputAction, tokensReducer } from './TokensReducer';
 import LayoutEvents from '../../lib/LayoutEvents';
 import styles from './Tokens.less';
 import cn from 'classnames';
+import Menu from '../Menu/Menu';
 
 export enum TokensInputType {
   WithReference,
@@ -46,50 +47,27 @@ export class Tokens<T = string> extends React.Component<
   TokensProps<T>,
   TokensState<T>
 > {
-  rootRef = React.createRef<HTMLDivElement>();
-  inputRef = React.createRef<HTMLInputElement>();
-  tokensInputMenu = React.createRef<TokensMenu<T>>();
-  textHelperRef = React.createRef<TextWidthHelper>();
-  wrapperRef = React.createRef<HTMLLabelElement>();
-
-  get type() {
-    return this.props.type ? this.props.type : TokensInputType.WithReference;
-  }
-
-  get delimiters() {
-    return this.props.delimiters ? this.props.delimiters : [','];
-  }
-
-  get menuRef() {
-    return (
-      this.tokensInputMenu.current &&
-      this.tokensInputMenu.current.getMenuRef().current
-    );
-  }
-
-  get isCursorVisible() {
-    return this.isCursorVisibleForState(this.state);
-  }
-
-  isCursorVisibleForState(state: TokensState<T>) {
-    return (
-      state.inFocus &&
-      (state.inputValue !== '' || state.activeTokens.length === 0)
-    );
-  }
-
-  state: TokensState<T> = {
+  public state: TokensState<T> = {
     inputValue: '',
     inputValueWidth: 20,
     activeTokens: []
   };
 
-  componentDidMount() {
+  private root: HTMLDivElement | null = null;
+  private input: HTMLInputElement | null = null;
+  private tokensInputMenu: TokensMenu<T> | null = null;
+  private textHelper: TextWidthHelper | null = null;
+  private wrapper: HTMLLabelElement | null = null;
+
+  public componentDidMount() {
     this.updateInputTextWidth();
     document.addEventListener('copy', this.handleCopy);
   }
 
-  componentDidUpdate(prevProps: TokensProps<T>, prevState: TokensState<T>) {
+  public componentDidUpdate(
+    prevProps: TokensProps<T>,
+    prevState: TokensState<T>
+  ) {
     if (prevState.inputValue !== this.state.inputValue) {
       this.updateInputTextWidth();
     }
@@ -107,11 +85,11 @@ export class Tokens<T = string> extends React.Component<
     }
   }
 
-  componentWillUnmount() {
+  public componentWillUnmount() {
     document.removeEventListener('copy', this.handleCopy);
   }
 
-  render(): JSX.Element {
+  public render(): JSX.Element {
     if (
       this.type !== TokensInputType.WithoutReference &&
       !this.props.getItems
@@ -183,8 +161,8 @@ export class Tokens<T = string> extends React.Component<
         </label>
         {showMenu && (
           <TokensMenu
-            ref={this.tokensInputMenu}
-            anchorElement={this.inputRef.current!}
+            ref={this.tokensInputMenuRef}
+            anchorElement={this.input!}
             inputValue={this.state.inputValue}
             onAddItem={this.handleAddItem}
             autocompleteItems={this.state.autocompleteItems}
@@ -200,13 +178,43 @@ export class Tokens<T = string> extends React.Component<
     );
   }
 
+  private get type() {
+    return this.props.type ? this.props.type : TokensInputType.WithReference;
+  }
+
+  private get delimiters() {
+    return this.props.delimiters ? this.props.delimiters : [','];
+  }
+
+  private get menuRef(): Menu | null {
+    return this.tokensInputMenu && this.tokensInputMenu.getMenuRef();
+  }
+
+  private get isCursorVisible() {
+    return this.isCursorVisibleForState(this.state);
+  }
+
+  private isCursorVisibleForState(state: TokensState<T>) {
+    return (
+      state.inFocus &&
+      (state.inputValue !== '' || state.activeTokens.length === 0)
+    );
+  }
+
+  private rootRef = (node: HTMLDivElement) => (this.root = node);
+  private inputRef = (node: HTMLInputElement) => (this.input = node);
+  private tokensInputMenuRef = (node: TokensMenu<T>) =>
+    (this.tokensInputMenu = node);
+  private textHelperRef = (node: TextWidthHelper) => (this.textHelper = node);
+  private wrapperRef = (node: HTMLLabelElement) => (this.wrapper = node);
+
   private dispatch = (action: TokensInputAction, cb?: () => void) => {
     this.setState(prevState => tokensReducer(prevState, action), cb);
   };
 
   private updateInputTextWidth() {
-    if (this.textHelperRef.current) {
-      const inputValueWidth = this.textHelperRef.current.getTextWidth();
+    if (this.textHelper) {
+      const inputValueWidth = this.textHelper.getTextWidth();
       this.dispatch(
         { type: 'SET_INPUT_VALUE_WIDTH', payload: inputValueWidth },
         LayoutEvents.emit
@@ -222,9 +230,9 @@ export class Tokens<T = string> extends React.Component<
     if (this.isBlurToMenu(event) || this.state.preventBlur) {
       event.preventDefault();
       // первый focus нужен для предотвращения/уменьшения моргания в других браузерах
-      this.inputRef.current!.focus();
+      this.input!.focus();
       // в firefox не работает без второго focus
-      process.nextTick(() => this.inputRef.current!.focus());
+      process.nextTick(() => this.input!.focus());
       this.dispatch({ type: 'SET_PREVENT_BLUR', payload: false });
     } else {
       this.dispatch({ type: 'BLUR' });
@@ -248,9 +256,9 @@ export class Tokens<T = string> extends React.Component<
     const target = event.target as HTMLElement;
     const isClickOnToken =
       target &&
-      this.wrapperRef.current!.contains(target) &&
-      target !== this.wrapperRef.current! &&
-      target !== this.inputRef.current!;
+      this.wrapper!.contains(target) &&
+      target !== this.wrapper! &&
+      target !== this.input!;
     if (!isClickOnToken) {
       this.dispatch({ type: 'REMOVE_ALL_ACTIVE_TOKENS' });
     }
@@ -357,13 +365,13 @@ export class Tokens<T = string> extends React.Component<
         }
         break;
       case 'Escape':
-        this.inputRef.current!.blur();
+        this.input!.blur();
         break;
       case 'Backspace':
         this.moveFocusToLastToken();
         break;
       case 'ArrowLeft':
-        if (this.inputRef.current!.selectionStart === 0) {
+        if (this.input!.selectionStart === 0) {
           this.moveFocusToLastToken();
         }
         break;
@@ -378,7 +386,7 @@ export class Tokens<T = string> extends React.Component<
   }
 
   private focusInput = () => {
-    process.nextTick(() => this.inputRef.current!.focus());
+    process.nextTick(() => this.input!.focus());
   };
 
   private handleWrapperKeyDown = (event: KeyboardEvent<HTMLElement>) => {
@@ -391,7 +399,7 @@ export class Tokens<T = string> extends React.Component<
         this.props.onChange(itemsNew);
         this.dispatch({ type: 'REMOVE_ALL_ACTIVE_TOKENS' }, () => {
           LayoutEvents.emit();
-          this.inputRef.current!.focus();
+          this.input!.focus();
         });
         break;
       case 'ArrowLeft':
@@ -399,7 +407,7 @@ export class Tokens<T = string> extends React.Component<
         this.handleWrapperArrows(event);
         break;
       case 'Escape':
-        this.wrapperRef.current!.blur();
+        this.wrapper!.blur();
         break;
       case 'a':
         if (event.ctrlKey) {
@@ -441,7 +449,7 @@ export class Tokens<T = string> extends React.Component<
   ) => {
     if (isRightEdge) {
       this.dispatch({ type: 'REMOVE_ALL_ACTIVE_TOKENS' }, () =>
-        this.inputRef.current!.focus()
+        this.input!.focus()
       );
     } else if (!isLeftEdge) {
       this.dispatch({

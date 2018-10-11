@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { RefObject } from 'react';
 import Menu from '../Menu/Menu';
 import MenuItem from '../MenuItem';
 import MenuSeparator from '../MenuSeparator/MenuSeparator';
@@ -19,9 +18,9 @@ export interface TokensMenuProps<T> {
 }
 
 export default class TokensMenu<T> extends React.Component<TokensMenuProps<T>> {
-  private menuRef = React.createRef<Menu>();
+  private menu: Menu | null = null;
 
-  render() {
+  public render() {
     return (
       <Popup
         opened={true}
@@ -34,11 +33,11 @@ export default class TokensMenu<T> extends React.Component<TokensMenuProps<T>> {
     );
   }
 
-  public getMenuRef = (): RefObject<Menu> => {
-    return this.menuRef;
-  };
+  public getMenuRef = (): Menu | null => this.menu;
 
-  renderMenu() {
+  private menuRef = (node: Menu) => (this.menu = node);
+
+  private renderMenu() {
     const {
       autocompleteItems,
       renderNotFound,
@@ -51,18 +50,17 @@ export default class TokensMenu<T> extends React.Component<TokensMenuProps<T>> {
 
     const addItemNote = (
       <MenuItem onClick={handleAddItemNoteClick}>
-        {(state: 'hover') => (
-          <>
-            <div>Добавить {this.props.inputValue}</div>
-            <div
-              className={cn(styles.subheader, {
-                [styles.subheaderHovered]: state === 'hover'
-              })}
-            >
-              Нажмите Enter или запятую
-            </div>
-          </>
-        )}
+        {(state: 'hover') => [
+          <div key="addValue">Добавить {this.props.inputValue}</div>,
+          <div
+            key="addValueSubheader"
+            className={cn(styles.subheader, {
+              [styles.subheaderHovered]: state === 'hover'
+            })}
+          >
+            Нажмите Enter или запятую
+          </div>
+        ]}
       </MenuItem>
     );
     const addItemNoteWithSeparator = showAddItemHint

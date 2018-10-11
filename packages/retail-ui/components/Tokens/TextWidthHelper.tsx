@@ -15,9 +15,9 @@ const styles: React.CSSProperties = {
 export default class TextWidthHelper extends React.Component<
   TextWidthHelperProps
 > {
-  private elementRef = React.createRef<HTMLDivElement>();
+  private element: HTMLDivElement | null = null;
 
-  render() {
+  public render() {
     return (
       <RenderContainer>
         <div style={styles} ref={this.elementRef}>
@@ -28,6 +28,8 @@ export default class TextWidthHelper extends React.Component<
   }
 
   public getTextWidth(): number {
-    return this.elementRef.current!.getBoundingClientRect().width;
+    return this.element!.getBoundingClientRect().width;
   }
+
+  private elementRef = (node: HTMLDivElement) => (this.element = node);
 }
