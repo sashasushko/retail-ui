@@ -2,13 +2,13 @@ import * as React from 'react';
 import { ChangeEvent, FocusEvent, KeyboardEvent } from 'react';
 import * as ReactDOM from 'react-dom';
 import TextWidthHelper from './TextWidthHelper';
-import TokensField from './TokensField';
 import TokensMenu from './TokensMenu';
 import { TokensInputAction, tokensReducer } from './TokensReducer';
 import LayoutEvents from '../../lib/LayoutEvents';
 import styles from './Tokens.less';
 import cn from 'classnames';
 import Menu from '../Menu/Menu';
+import RemoveIcon from './RemoveIcon';
 
 export enum TokensInputType {
   WithReference,
@@ -132,13 +132,7 @@ export class Tokens<T = string> extends React.Component<
           onMouseDown={this.handleWrapperMouseDown}
           onMouseUp={this.handleWrapperMouseUp}
         >
-          <TokensField
-            selectedItems={this.props.selectedItems}
-            activeTokens={this.state.activeTokens}
-            renderValue={this.props.renderValue}
-            onRemoveToken={this.handleRemoveToken}
-            onTokenClick={this.handleTokenClick}
-          />
+          {this.renderTokenFields()}
           <input
             type="text"
             ref={this.inputRef}
@@ -538,5 +532,32 @@ export class Tokens<T = string> extends React.Component<
     ) {
       this.menuRef.highlightItem(0);
     }
+  };
+
+  private renderTokenFields = () => {
+    const renderValue = this.props.renderValue || ((item: T) => item);
+    return this.props.selectedItems.map((item, index) => {
+      const isSelected = this.state.activeTokens.indexOf(item) !== -1;
+      const handleIconClick: React.MouseEventHandler<SVGElement> = event => {
+        event.stopPropagation();
+        this.handleRemoveToken(item);
+      };
+      const handleTokenClick: React.MouseEventHandler<
+        HTMLDivElement
+      > = event => {
+        event.stopPropagation();
+        this.handleTokenClick(event, item);
+      };
+      return (
+        <div
+          key={index}
+          onClick={handleTokenClick}
+          className={cn(styles.token, { [styles.tokenActive]: isSelected })}
+        >
+          {renderValue(item)}
+          <RemoveIcon className={styles.removeIcon} onClick={handleIconClick} />
+        </div>
+      );
+    });
   };
 }
