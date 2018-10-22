@@ -1,6 +1,7 @@
+// tslint:disable:jsx-no-lambda
 import * as React from 'react';
 import { storiesOf } from '@storybook/react';
-import { Tokens, TokensInputType } from '../Tokens';
+import { TokenInput, TokenInputType } from '../TokenInput';
 import Gapped from '../../Gapped';
 
 const FixedWidthDecorator = (storyFn: any) => (
@@ -32,9 +33,9 @@ class Wrapper extends React.Component<any, any> {
     this.state = { selectedItems };
   }
 
-  render() {
+  public render() {
     return (
-      <Tokens
+      <TokenInput
         {...this.props}
         selectedItems={this.state.selectedItems}
         onChange={itemsNew => this.setState({ selectedItems: itemsNew })}
@@ -48,7 +49,7 @@ const FilledWrapper = (props: any) => (
 );
 
 // tslint:disable jsx-no-lambda
-storiesOf('Tokens', module)
+storiesOf('TokenInput', module)
   .addDecorator(FixedWidthDecorator)
   .add('validations', () => {
     return (
@@ -69,10 +70,10 @@ storiesOf('Tokens', module)
     return <Wrapper getItems={getItems} />;
   })
   .add('empty without reference', () => {
-    return <Wrapper type={TokensInputType.WithoutReference} />;
+    return <Wrapper type={TokenInputType.WithoutReference} />;
   })
   .add('empty combined', () => {
-    return <Wrapper type={TokensInputType.Combined} getItems={getItems} />;
+    return <Wrapper type={TokenInputType.Combined} getItems={getItems} />;
   })
   .add('[with reference] filled', () => {
     return <FilledWrapper getItems={getItems} />;
@@ -80,15 +81,13 @@ storiesOf('Tokens', module)
   .add('[without reference] filled', () => {
     return (
       <FilledWrapper
-        type={TokensInputType.WithoutReference}
+        type={TokenInputType.WithoutReference}
         getItems={getItems}
       />
     );
   })
   .add('[combined] filled', () => {
-    return (
-      <FilledWrapper type={TokensInputType.Combined} getItems={getItems} />
-    );
+    return <FilledWrapper type={TokenInputType.Combined} getItems={getItems} />;
   })
   .add('with long item 1', () => {
     return (
@@ -114,7 +113,7 @@ storiesOf('Tokens', module)
     return (
       <Gapped vertical gap={10}>
         <FilledWrapper getItems={getItems} />
-        <Wrapper getItems={getItems} type={TokensInputType.WithoutReference} />
+        <Wrapper getItems={getItems} type={TokenInputType.WithoutReference} />
       </Gapped>
     );
   });

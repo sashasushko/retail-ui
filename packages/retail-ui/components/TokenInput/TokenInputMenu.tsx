@@ -5,9 +5,9 @@ import MenuSeparator from '../MenuSeparator/MenuSeparator';
 import Spinner from '../Spinner';
 import Popup from '../Popup/Popup';
 import cn from 'classnames';
-import styles from './Tokens.less';
+import styles from './TokenInput.less';
 
-export interface TokensMenuProps<T> {
+export interface TokenInputMenuProps<T> {
   anchorElement: HTMLElement;
   onAddItem: (item: T) => void;
   inputValue: string;
@@ -17,7 +17,9 @@ export interface TokensMenuProps<T> {
   showAddItemHint?: boolean;
 }
 
-export default class TokensMenu<T> extends React.Component<TokensMenuProps<T>> {
+export default class TokenInputMenu<T> extends React.Component<
+  TokenInputMenuProps<T>
+> {
   private menu: Menu | null = null;
 
   public render() {

@@ -1,16 +1,16 @@
 import * as React from 'react';
 import { mount } from 'enzyme';
-import { Tokens } from '../Tokens';
+import { TokenInput } from '../TokenInput';
 
 async function getItems(query: string) {
   return ['aaa', 'bbb', 'ccc'].filter(s => s.includes(query));
 }
 
-describe('<Tokens />', () => {
+describe('<TokenInput />', () => {
   it('should contains placeholder', () => {
     const onChange = jest.fn();
     const wrapper = mount(
-      <Tokens
+      <TokenInput
         getItems={getItems}
         selectedItems={[]}
         onChange={onChange}

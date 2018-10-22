@@ -2,22 +2,22 @@ import * as React from 'react';
 import { ChangeEvent, FocusEvent, KeyboardEvent } from 'react';
 import * as ReactDOM from 'react-dom';
 import TextWidthHelper from './TextWidthHelper';
-import TokensMenu from './TokensMenu';
-import { TokensInputAction, tokensReducer } from './TokensReducer';
+import TokenInputMenu from './TokenInputMenu';
+import { TokenInputAction, tokenInputReducer } from './TokenInputReducer';
 import LayoutEvents from '../../lib/LayoutEvents';
-import styles from './Tokens.less';
+import styles from './TokenInput.less';
 import cn from 'classnames';
 import Menu from '../Menu/Menu';
 import RemoveIcon from './RemoveIcon';
 
-export enum TokensInputType {
+export enum TokenInputType {
   WithReference,
   WithoutReference,
   Combined
 }
 
-export interface TokensProps<T> {
-  type?: TokensInputType;
+export interface TokenInputProps<T> {
+  type?: TokenInputType;
   selectedItems: T[];
   onChange: (items: T[]) => void;
   getItems?: (query: string) => Promise<T[]>;
@@ -31,7 +31,7 @@ export interface TokensProps<T> {
   warning?: boolean;
 }
 
-export interface TokensState<T> {
+export interface TokenInputState<T> {
   autocompleteItems?: T[];
   activeTokens: T[];
   inFocus?: boolean;
@@ -43,11 +43,11 @@ export interface TokensState<T> {
 /**
  * DRAFT - поле с токенами
  */
-export class Tokens<T = string> extends React.Component<
-  TokensProps<T>,
-  TokensState<T>
+export class TokenInput<T = string> extends React.Component<
+  TokenInputProps<T>,
+  TokenInputState<T>
 > {
-  public state: TokensState<T> = {
+  public state: TokenInputState<T> = {
     inputValue: '',
     inputValueWidth: 20,
     activeTokens: []
@@ -55,7 +55,7 @@ export class Tokens<T = string> extends React.Component<
 
   private root: HTMLDivElement | null = null;
   private input: HTMLInputElement | null = null;
-  private tokensInputMenu: TokensMenu<T> | null = null;
+  private tokensInputMenu: TokenInputMenu<T> | null = null;
   private textHelper: TextWidthHelper | null = null;
   private wrapper: HTMLLabelElement | null = null;
 
@@ -65,8 +65,8 @@ export class Tokens<T = string> extends React.Component<
   }
 
   public componentDidUpdate(
-    prevProps: TokensProps<T>,
-    prevState: TokensState<T>
+    prevProps: TokenInputProps<T>,
+    prevState: TokenInputState<T>
   ) {
     if (prevState.inputValue !== this.state.inputValue) {
       this.updateInputTextWidth();
@@ -90,15 +90,12 @@ export class Tokens<T = string> extends React.Component<
   }
 
   public render(): JSX.Element {
-    if (
-      this.type !== TokensInputType.WithoutReference &&
-      !this.props.getItems
-    ) {
+    if (this.type !== TokenInputType.WithoutReference && !this.props.getItems) {
       throw Error('Missed getItems for type ' + this.type);
     }
 
     const showMenu =
-      this.type !== TokensInputType.WithoutReference &&
+      this.type !== TokenInputType.WithoutReference &&
       this.isCursorVisible &&
       this.state.activeTokens.length === 0 &&
       (this.state.inputValue !== '' || !this.props.hideMenuIfEmptyInputValue);
@@ -116,7 +113,7 @@ export class Tokens<T = string> extends React.Component<
     };
 
     return (
-      <div data-tid="Tokens" ref={this.rootRef} className={styles.root}>
+      <div data-tid="TokenInput" ref={this.rootRef} className={styles.root}>
         {/* расчёт ширины текста с последующим обновлением ширины input */}
         <TextWidthHelper
           ref={this.textHelperRef}
@@ -154,7 +151,7 @@ export class Tokens<T = string> extends React.Component<
           />
         </label>
         {showMenu && (
-          <TokensMenu
+          <TokenInputMenu
             ref={this.tokensInputMenuRef}
             anchorElement={this.input!}
             inputValue={this.state.inputValue}
@@ -163,7 +160,7 @@ export class Tokens<T = string> extends React.Component<
             renderNotFound={this.props.renderNotFound}
             renderItem={this.props.renderItem}
             showAddItemHint={
-              this.type === TokensInputType.Combined &&
+              this.type === TokenInputType.Combined &&
               this.state.inputValue !== ''
             }
           />
@@ -173,7 +170,7 @@ export class Tokens<T = string> extends React.Component<
   }
 
   private get type() {
-    return this.props.type ? this.props.type : TokensInputType.WithReference;
+    return this.props.type ? this.props.type : TokenInputType.WithReference;
   }
 
   private get delimiters() {
@@ -188,7 +185,7 @@ export class Tokens<T = string> extends React.Component<
     return this.isCursorVisibleForState(this.state);
   }
 
-  private isCursorVisibleForState(state: TokensState<T>) {
+  private isCursorVisibleForState(state: TokenInputState<T>) {
     return (
       state.inFocus &&
       (state.inputValue !== '' || state.activeTokens.length === 0)
@@ -197,13 +194,13 @@ export class Tokens<T = string> extends React.Component<
 
   private rootRef = (node: HTMLDivElement) => (this.root = node);
   private inputRef = (node: HTMLInputElement) => (this.input = node);
-  private tokensInputMenuRef = (node: TokensMenu<T>) =>
+  private tokensInputMenuRef = (node: TokenInputMenu<T>) =>
     (this.tokensInputMenu = node);
   private textHelperRef = (node: TextWidthHelper) => (this.textHelper = node);
   private wrapperRef = (node: HTMLLabelElement) => (this.wrapper = node);
 
-  private dispatch = (action: TokensInputAction, cb?: () => void) => {
-    this.setState(prevState => tokensReducer(prevState, action), cb);
+  private dispatch = (action: TokenInputAction, cb?: () => void) => {
+    this.setState(prevState => tokenInputReducer(prevState, action), cb);
   };
 
   private updateInputTextWidth() {
@@ -281,7 +278,7 @@ export class Tokens<T = string> extends React.Component<
   };
 
   private handleInputPaste = (event: React.ClipboardEvent<HTMLElement>) => {
-    if (this.type === TokensInputType.WithReference || !event.clipboardData) {
+    if (this.type === TokenInputType.WithReference || !event.clipboardData) {
       return;
     }
     let paste = event.clipboardData.getData('text');
@@ -331,7 +328,7 @@ export class Tokens<T = string> extends React.Component<
     event.stopPropagation();
 
     if (
-      this.type !== TokensInputType.WithReference &&
+      this.type !== TokenInputType.WithReference &&
       (event.key === 'Enter' || this.delimiters.includes(event.key))
     ) {
       event.preventDefault();
@@ -528,7 +525,7 @@ export class Tokens<T = string> extends React.Component<
       this.menuRef &&
       this.state.autocompleteItems &&
       this.state.autocompleteItems.length > 0 &&
-      this.type !== TokensInputType.Combined
+      this.type !== TokenInputType.Combined
     ) {
       this.menuRef.highlightItem(0);
     }
