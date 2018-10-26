@@ -82,7 +82,7 @@ export default class TokenInputMenu<T> extends React.Component<
       );
     }
 
-    if (autocompleteItems.length === 0) {
+    if (autocompleteItems.length === 0 && this.props.inputValue) {
       return (
         <Menu ref={this.menuRef}>
           {showAddItemHint ? (
