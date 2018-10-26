@@ -81,7 +81,7 @@ export default class TokenInput<T = string> extends React.Component<
       LayoutEvents.emit();
     }
     if (!this.isCursorVisibleForState(prevState) && this.isCursorVisible) {
-      this.tryGetItems();
+      this.tryGetItems(this.state.inputValue);
     }
   }
 
