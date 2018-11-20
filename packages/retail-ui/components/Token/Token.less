@@ -15,26 +15,9 @@
     word-break: break-all;
     word-break: break-word;
     user-select: none;
-    background-color: @token-color;
-    border: 1px solid darken(@token-color, 5%);
 
     &:hover {
       cursor: pointer;
-    }
-  }
-
-  .tokenActive {
-    background-color: @token-active-color;
-    color: @text-color-invert;
-    border: 1px solid darken(@token-active-color, 5%);
-
-    .removeIcon {
-      transition: none;
-      fill: @token-active-remove-icon-color;
-
-      &:hover {
-        fill: @token-active-remove-icon-hover-color;
-      }
     }
   }
 
@@ -45,11 +28,6 @@
     box-sizing: border-box;
     margin-left: 4px;
     transition: fill 0.2s ease-out;
-    fill: @token-remove-icon-color;
     flex: none;
-
-    &:hover {
-      fill: @token-remove-icon-hover-color;
-    }
   }
 }

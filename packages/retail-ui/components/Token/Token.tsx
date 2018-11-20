@@ -8,7 +8,7 @@ export type TokenColorName = keyof typeof tokenColors;
 
 export interface TokenColors {
   idle: TokenColorName;
-  active: TokenColorName;
+  active?: TokenColorName;
 }
 
 export interface TokenProps {
@@ -25,13 +25,18 @@ const Token: React.SFC<TokenProps> = ({
   onClick = () => undefined,
   onRemove = () => undefined
 }) => {
-  const tokenCN = colors ? tokenColors[colors.idle] : undefined;
-  const activeTokenCN = colors ? tokenColors[colors.active] : undefined;
+  const tokenClassName = colors
+    ? tokenColors[colors.idle]
+    : tokenColors['i-default'];
+
+  const activeTokenClassName = colors
+    ? tokenColors[colors.active || colors.idle]
+    : tokenColors['a-default'];
 
   const tokenClassNames = cn(
     styles.token,
-    { [activeTokenCN || styles.tokenActive]: isActive },
-    tokenCN
+    { [activeTokenClassName]: isActive },
+    tokenClassName
   );
 
   return (

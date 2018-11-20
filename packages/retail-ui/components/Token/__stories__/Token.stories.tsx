@@ -5,9 +5,7 @@ import Token, { TokenColors } from '../Token';
 import Gapped from '../../Gapped/Gapped';
 
 const FixedWidthDecorator = (storyFn: any) => (
-  <div
-    className="token-test-container"
-    style={{ margin: 40, height: 200, width: 400, padding: 4 }}>
+  <div className="token-test-container" style={{ margin: 40, padding: 4 }}>
     {storyFn()}
   </div>
 );
@@ -34,43 +32,45 @@ storiesOf('Token', module)
     );
   })
   .add('colored', () => {
-    const gray: TokenColors = {
-      idle: 'l-gray',
-      active: 'd-gray'
-    };
+    const gray: TokenColors = { idle: 'l-gray' };
+    const blue: TokenColors = { idle: 'l-blue' };
+    const red: TokenColors = { idle: 'l-red' };
+    const green: TokenColors = { idle: 'l-green' };
+    const yellow: TokenColors = { idle: 'l-yellow' };
 
-    const blue: TokenColors = {
-      idle: 'l-blue',
-      active: 'd-blue'
-    };
+    const d_gray: TokenColors = { idle: 'd-gray' };
+    const d_blue: TokenColors = { idle: 'd-blue' };
+    const d_red: TokenColors = { idle: 'd-red' };
+    const d_green: TokenColors = { idle: 'd-green' };
+    const d_yellow: TokenColors = { idle: 'd-yellow' };
 
-    const violet: TokenColors = {
-      idle: 'l-violet',
-      active: 'd-violet'
-    };
+    const a_default: TokenColors = { idle: 'a-default' };
+    const i_default: TokenColors = { idle: 'i-default' };
+
+    const black: TokenColors = { idle: 'black' };
+    const white: TokenColors = { idle: 'white' };
+
+    const default_colors = [i_default, a_default];
+    const l_colors = [gray, red, green, blue, yellow, white];
+    const d_colors = [d_gray, d_red, d_green, d_blue, d_yellow, black];
 
     return (
       <>
         <Gapped vertical={true}>
           <Gapped>
-            <Token colors={gray}>test</Token>
-            <Token isActive colors={gray}>
-              test
-            </Token>
+            {default_colors.map(c => (
+              <Token colors={c}>{c.idle}</Token>
+            ))}
           </Gapped>
-
           <Gapped>
-            <Token colors={blue}>test</Token>
-            <Token isActive colors={blue}>
-              test
-            </Token>
+            {l_colors.map(c => (
+              <Token colors={c}>{c.idle}</Token>
+            ))}
           </Gapped>
-
           <Gapped>
-            <Token colors={violet}>test</Token>
-            <Token isActive colors={violet}>
-              test
-            </Token>
+            {d_colors.map(c => (
+              <Token colors={c}>{c.idle}</Token>
+            ))}
           </Gapped>
         </Gapped>
       </>

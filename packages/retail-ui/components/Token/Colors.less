@@ -1,10 +1,14 @@
+@import '../variables.less';
+
 .makeColor(@color) {
   background-color: @color;
-  border: 1px solid darken(@color, 5%);
   color: contrast(@color);
+  border: 1px solid darken(@color, 5%);
 
   [data-name="RemoveIcon"] {
+    transition: none;
     fill: currentColor;
+
     &:hover {
       color: contrast(@color);
     }
@@ -13,53 +17,60 @@
 
 :local {
 
+  .i-default {
+    .makeColor(@gray_x_light);
+  }
+
+  .a-default {
+    .makeColor(@brand);
+  }
+
   .l-gray {
-    .makeColor(#ededed);
+    .makeColor(@gray_x_light);
   }
 
   .d-gray {
-    .makeColor(#b4b4b4);
+    .makeColor(@gray_dark);
   }
 
   .l-blue {
-    .makeColor(#5d5dff);
+    .makeColor(@blue_light);
   }
 
   .d-blue {
-    .makeColor(blue);
+    .makeColor(@blue_dark);
   }
 
   .l-green {
-    .makeColor(#00e000);
+    .makeColor(@green_xx_light);
   }
 
   .d-green {
-    .makeColor(green);
+    .makeColor(@green_dark);
   }
 
   .l-yellow {
-    .makeColor(#fffbab);
+    .makeColor(@yellow_xx_light);
   }
 
   .d-yellow {
-    .makeColor(#b3b300);
+    .makeColor(@yellow_dark);
   }
 
   .l-red {
-    .makeColor(#ff8b93);
+    .makeColor(@red_xx_light);
   }
 
   .d-red {
-    .makeColor(#b30000);
+    .makeColor(@red_dark);
   }
 
-  .l-violet {
-    .makeColor(violet);
+  .white {
+    .makeColor(@white);
   }
 
-  .d-violet {
-    .makeColor(#683968);
+  .black {
+    .makeColor(@black);
   }
-
 }
 
