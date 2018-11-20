@@ -7,18 +7,18 @@ import Popup from '../Popup/Popup';
 import cn from 'classnames';
 import styles from './TokenInput.less';
 
-export interface TokenInputMenuProps<T> {
+export interface TokenInputMenuProps {
   anchorElement: HTMLElement;
-  onAddItem: (item: T) => void;
+  onAddItem: (item: string) => void;
   inputValue: string;
-  autocompleteItems?: T[];
+  autocompleteItems?: string[];
   renderNotFound?: () => React.ReactNode;
-  renderItem?: (item: T) => React.ReactNode;
+  renderItem?: (item: string) => React.ReactNode;
   showAddItemHint?: boolean;
 }
 
-export default class TokenInputMenu<T> extends React.Component<
-  TokenInputMenuProps<T>
+export default class TokenInputMenu extends React.Component<
+  TokenInputMenuProps
 > {
   private menu: Menu | null = null;
 
@@ -48,7 +48,7 @@ export default class TokenInputMenu<T> extends React.Component<
     } = this.props;
 
     const handleAddItemNoteClick = () =>
-      this.props.onAddItem(this.props.inputValue as any);
+      this.props.onAddItem(this.props.inputValue);
 
     const addItemNote = (
       <MenuItem onClick={handleAddItemNoteClick}>

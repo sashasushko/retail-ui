@@ -3,12 +3,12 @@ import * as React from 'react';
 import { storiesOf } from '@storybook/react';
 import Gapped from '../../Gapped';
 import TokenInput, { TokenInputType } from '../TokenInput';
+import styles from './styles.less';
 
 const FixedWidthDecorator = (storyFn: any) => (
   <div
     className="tokens-test-container"
-    style={{ margin: 40, height: 200, width: 400, padding: 4 }}
-  >
+    style={{ margin: 40, height: 200, width: 400, padding: 4 }}>
     {storyFn()}
   </div>
 );
@@ -44,6 +44,38 @@ class Wrapper extends React.Component<any, any> {
   }
 }
 
+class ColoredWrapper extends React.Component<any, any> {
+  constructor(props: any) {
+    super(props);
+    const selectedItems = props.selectedItems
+      ? props.selectedItems
+      : props.numberItems
+        ? new Array(props.numberItems)
+            .fill(null)
+            .map((_, i) => i.toString().repeat(3))
+        : [];
+    this.state = { selectedItems };
+  }
+
+  public render() {
+    return (
+      <TokenInput
+        {...this.props}
+        selectedItems={this.state.selectedItems}
+        TokenComponent={token => {
+          const violetStyle = {
+            token: styles.violet_token,
+            activeToken: styles.violet_activeToken,
+            removeIcon: styles.removeIcon
+          };
+          return token(violetStyle);
+        }}
+        onChange={itemsNew => this.setState({ selectedItems: itemsNew })}
+      />
+    );
+  }
+}
+
 const FilledWrapper = (props: any) => (
   <Wrapper {...{ ...props, numberItems: 7 }} />
 );
@@ -68,6 +100,9 @@ storiesOf('TokenInput', module)
   })
   .add('empty with reference', () => {
     return <Wrapper getItems={getItems} />;
+  })
+  .add('colored empty with reference', () => {
+    return <ColoredWrapper getItems={getItems} />;
   })
   .add('empty without reference', () => {
     return <Wrapper type={TokenInputType.WithoutReference} />;

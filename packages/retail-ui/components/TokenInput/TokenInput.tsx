@@ -8,7 +8,8 @@ import LayoutEvents from '../../lib/LayoutEvents';
 import styles from './TokenInput.less';
 import cn from 'classnames';
 import Menu from '../Menu/Menu';
-import RemoveIcon from './RemoveIcon';
+import Token from '../Token';
+import { TokenClassNames, TokenProps } from '../Token/Token';
 
 export enum TokenInputType {
   WithReference,
@@ -16,24 +17,27 @@ export enum TokenInputType {
   Combined
 }
 
-export interface TokenInputProps<T> {
+export interface TokenInputProps {
   type?: TokenInputType;
-  selectedItems: T[];
-  onChange: (items: T[]) => void;
-  getItems?: (query: string) => Promise<T[]>;
+  selectedItems: string[];
+  onChange: (items: string[]) => void;
+  getItems?: (query: string) => Promise<string[]>;
   hideMenuIfEmptyInputValue?: boolean;
-  renderItem?: (item: T) => React.ReactNode;
-  renderValue?: (item: T) => React.ReactNode;
+  renderItem?: (item: string) => React.ReactNode;
+  renderValue?: (item: string) => React.ReactNode;
   renderNotFound?: () => React.ReactNode;
   placeholder?: string;
   delimiters?: string[];
   error?: boolean;
   warning?: boolean;
+  TokenComponent?: (
+    token: (classNames?: TokenClassNames) => React.ReactElement<TokenProps>
+  ) => React.ReactElement<TokenProps>;
 }
 
-export interface TokenInputState<T> {
-  autocompleteItems?: T[];
-  activeTokens: T[];
+export interface TokenInputState {
+  autocompleteItems?: string[];
+  activeTokens: string[];
   inFocus?: boolean;
   inputValue: string;
   inputValueWidth: number;
@@ -43,11 +47,11 @@ export interface TokenInputState<T> {
 /**
  * DRAFT - поле с токенами
  */
-export default class TokenInput<T = string> extends React.Component<
-  TokenInputProps<T>,
-  TokenInputState<T>
+export default class TokenInput extends React.Component<
+  TokenInputProps,
+  TokenInputState
 > {
-  public state: TokenInputState<T> = {
+  public state: TokenInputState = {
     inputValue: '',
     inputValueWidth: 20,
     activeTokens: []
@@ -55,7 +59,7 @@ export default class TokenInput<T = string> extends React.Component<
 
   private root: HTMLDivElement | null = null;
   private input: HTMLInputElement | null = null;
-  private tokensInputMenu: TokenInputMenu<T> | null = null;
+  private tokensInputMenu: TokenInputMenu | null = null;
   private textHelper: TextWidthHelper | null = null;
   private wrapper: HTMLLabelElement | null = null;
 
@@ -65,8 +69,8 @@ export default class TokenInput<T = string> extends React.Component<
   }
 
   public componentDidUpdate(
-    prevProps: TokenInputProps<T>,
-    prevState: TokenInputState<T>
+    prevProps: TokenInputProps,
+    prevState: TokenInputState
   ) {
     if (prevState.inputValue !== this.state.inputValue) {
       this.updateInputTextWidth();
@@ -127,8 +131,7 @@ export default class TokenInput<T = string> extends React.Component<
             [styles.warning]: this.props.warning
           })}
           onMouseDown={this.handleWrapperMouseDown}
-          onMouseUp={this.handleWrapperMouseUp}
-        >
+          onMouseUp={this.handleWrapperMouseUp}>
           {this.renderTokenFields()}
           <input
             type="text"
@@ -185,7 +188,7 @@ export default class TokenInput<T = string> extends React.Component<
     return this.isCursorVisibleForState(this.state);
   }
 
-  private isCursorVisibleForState(state: TokenInputState<T>) {
+  private isCursorVisibleForState(state: TokenInputState) {
     return (
       state.inFocus &&
       (state.inputValue !== '' || state.activeTokens.length === 0)
@@ -194,7 +197,7 @@ export default class TokenInput<T = string> extends React.Component<
 
   private rootRef = (node: HTMLDivElement) => (this.root = node);
   private inputRef = (node: HTMLInputElement) => (this.input = node);
-  private tokensInputMenuRef = (node: TokenInputMenu<T>) =>
+  private tokensInputMenuRef = (node: TokenInputMenu) =>
     (this.tokensInputMenu = node);
   private textHelperRef = (node: TextWidthHelper) => (this.textHelper = node);
   private wrapperRef = (node: HTMLLabelElement) => (this.wrapper = node);
@@ -465,7 +468,7 @@ export default class TokenInput<T = string> extends React.Component<
     }
   };
 
-  private handleAddItem = (item: T) => {
+  private handleAddItem = (item: string) => {
     if (this.props.selectedItems.includes(item)) {
       return;
     }
@@ -474,13 +477,13 @@ export default class TokenInput<T = string> extends React.Component<
     this.tryGetItems();
   };
 
-  private handleAddItems(items: T[]) {
+  private handleAddItems(items: string[]) {
     items = items.filter(item => !this.props.selectedItems.includes(item));
     const newItems = this.props.selectedItems.concat(items);
     this.props.onChange(newItems);
   }
 
-  private handleRemoveToken = (item: T) => {
+  private handleRemoveToken = (item: string) => {
     this.props.onChange(this.props.selectedItems.filter(_ => _ !== item));
     const filteredActiveTokens = this.state.activeTokens.filter(
       _ => _ !== item
@@ -493,7 +496,7 @@ export default class TokenInput<T = string> extends React.Component<
 
   private handleTokenClick = (
     event: React.MouseEvent<HTMLElement>,
-    itemNew: T
+    itemNew: string
   ) => {
     const items = this.state.activeTokens;
     if (event.ctrlKey) {
@@ -532,9 +535,9 @@ export default class TokenInput<T = string> extends React.Component<
   };
 
   private renderTokenFields = () => {
-    const renderValue = this.props.renderValue || ((item: T) => item);
-    return this.props.selectedItems.map((item, index) => {
-      const isSelected = this.state.activeTokens.indexOf(item) !== -1;
+    const renderValue = this.props.renderValue || ((item: string) => item);
+    return this.props.selectedItems.map(item => {
+      const isActive = this.state.activeTokens.indexOf(item) !== -1;
       const handleIconClick: React.MouseEventHandler<SVGElement> = event => {
         event.stopPropagation();
         this.handleRemoveToken(item);
@@ -545,16 +548,21 @@ export default class TokenInput<T = string> extends React.Component<
         event.stopPropagation();
         this.handleTokenClick(event, item);
       };
-      return (
-        <div
-          key={index}
-          onClick={handleTokenClick}
-          className={cn(styles.token, { [styles.tokenActive]: isSelected })}
-        >
-          {renderValue(item)}
-          <RemoveIcon className={styles.removeIcon} onClick={handleIconClick} />
-        </div>
-      );
+
+      const TokenComponent = (classNames?: TokenClassNames) =>
+        Token({
+          isActive,
+          classNames,
+          onClick: handleTokenClick,
+          onRemove: handleIconClick,
+          children: renderValue(item)
+        })!;
+
+      if (this.props.TokenComponent) {
+        return this.props.TokenComponent(TokenComponent);
+      }
+
+      return TokenComponent();
     });
   };
 }

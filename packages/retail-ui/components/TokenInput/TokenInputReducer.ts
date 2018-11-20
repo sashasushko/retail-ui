@@ -16,8 +16,8 @@ export type TokenInputActionType =
   | 'REMOVE_ALL_ACTIVE_TOKENS'
   | 'CLEAR_INPUT';
 
-export function tokenInputReducer<T>(
-  state: TokenInputState<T>,
+export function tokenInputReducer<T = string>(
+  state: TokenInputState,
   action: TokenInputAction
 ) {
   const payload = action.payload;

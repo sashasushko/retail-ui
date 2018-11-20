@@ -5,7 +5,7 @@ export interface RemoveIconProps {
   onClick?: React.MouseEventHandler<SVGElement>;
 }
 
-const RemoveIcon = (props: RemoveIconProps) => (
+const TokenRemoveIcon = (props: RemoveIconProps) => (
   <svg
     {...props}
     fillRule="evenodd"
@@ -19,4 +19,4 @@ const RemoveIcon = (props: RemoveIconProps) => (
   </svg>
 );
 
-export default RemoveIcon;
+export default TokenRemoveIcon;
