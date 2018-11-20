@@ -91,7 +91,8 @@ class ComboBoxMenu<T> extends Component<ComboBoxMenuProps<T>> {
       const props = Object.assign(
         {
           key: index,
-          onClick: (e: React.SyntheticEvent) => onChange(element.props, e)
+          onClick: (event: React.SyntheticEvent) =>
+            onChange(element.props, event)
         },
         element.props
       );
@@ -100,7 +101,7 @@ class ComboBoxMenu<T> extends Component<ComboBoxMenuProps<T>> {
 
     return (
       // tslint:disable-next-line:jsx-no-lambda
-      <MenuItem onClick={e => onChange(item, e)} key={index}>
+      <MenuItem onClick={event => onChange(item, event)} key={index}>
         {state => renderItem(item, state)}
       </MenuItem>
     );
