@@ -9,7 +9,7 @@ import styles from './TokenInput.less';
 import cn from 'classnames';
 import Menu from '../Menu/Menu';
 import Token from '../Token';
-import { TokenClassNames, TokenProps } from '../Token/Token';
+import { TokenColors, TokenProps } from '../Token/Token';
 
 export enum TokenInputType {
   WithReference,
@@ -31,7 +31,7 @@ export interface TokenInputProps {
   error?: boolean;
   warning?: boolean;
   TokenComponent?: (
-    token: (classNames?: TokenClassNames) => React.ReactElement<TokenProps>
+    token: (colors?: TokenColors) => React.ReactElement<TokenProps>
   ) => React.ReactElement<TokenProps>;
 }
 
@@ -549,10 +549,10 @@ export default class TokenInput extends React.Component<
         this.handleTokenClick(event, item);
       };
 
-      const TokenComponent = (classNames?: TokenClassNames) =>
+      const TokenComponent = (colors?: TokenColors) =>
         Token({
           isActive,
-          classNames,
+          colors,
           onClick: handleTokenClick,
           onRemove: handleIconClick,
           children: renderValue(item)

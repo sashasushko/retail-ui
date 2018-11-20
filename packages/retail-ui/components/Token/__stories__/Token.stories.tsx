@@ -1,8 +1,7 @@
 // tslint:disable:jsx-no-lambda
 import * as React from 'react';
 import { storiesOf } from '@storybook/react';
-import Token from '../Token';
-import styles from './styles.less';
+import Token, { TokenColors } from '../Token';
 import Gapped from '../../Gapped/Gapped';
 
 const FixedWidthDecorator = (storyFn: any) => (
@@ -35,29 +34,44 @@ storiesOf('Token', module)
     );
   })
   .add('colored', () => {
-    const yellowStyle = {
-      token: styles.yellow_token,
-      activeToken: styles.yellow_activeToken,
-      removeIcon: styles.removeIcon
+    const gray: TokenColors = {
+      idle: 'l-gray',
+      active: 'd-gray'
     };
 
-    const violetStyle = {
-      token: styles.violet_token,
-      activeToken: styles.violet_activeToken,
-      removeIcon: styles.removeIcon
+    const blue: TokenColors = {
+      idle: 'l-blue',
+      active: 'd-blue'
+    };
+
+    const violet: TokenColors = {
+      idle: 'l-violet',
+      active: 'd-violet'
     };
 
     return (
       <>
         <Gapped vertical={true}>
-          <Token classNames={yellowStyle}>test</Token>
-          <Token isActive classNames={yellowStyle}>
-            test
-          </Token>
-          <Token classNames={violetStyle}>test</Token>
-          <Token isActive classNames={violetStyle}>
-            test
-          </Token>
+          <Gapped>
+            <Token colors={gray}>test</Token>
+            <Token isActive colors={gray}>
+              test
+            </Token>
+          </Gapped>
+
+          <Gapped>
+            <Token colors={blue}>test</Token>
+            <Token isActive colors={blue}>
+              test
+            </Token>
+          </Gapped>
+
+          <Gapped>
+            <Token colors={violet}>test</Token>
+            <Token isActive colors={violet}>
+              test
+            </Token>
+          </Gapped>
         </Gapped>
       </>
     );

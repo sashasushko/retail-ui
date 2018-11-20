@@ -1,0 +1,65 @@
+.makeColor(@color) {
+  background-color: @color;
+  border: 1px solid darken(@color, 5%);
+  color: contrast(@color);
+
+  [data-name="RemoveIcon"] {
+    fill: currentColor;
+    &:hover {
+      color: contrast(@color);
+    }
+  }
+}
+
+:local {
+
+  .l-gray {
+    .makeColor(#ededed);
+  }
+
+  .d-gray {
+    .makeColor(#b4b4b4);
+  }
+
+  .l-blue {
+    .makeColor(#5d5dff);
+  }
+
+  .d-blue {
+    .makeColor(blue);
+  }
+
+  .l-green {
+    .makeColor(#00e000);
+  }
+
+  .d-green {
+    .makeColor(green);
+  }
+
+  .l-yellow {
+    .makeColor(#fffbab);
+  }
+
+  .d-yellow {
+    .makeColor(#b3b300);
+  }
+
+  .l-red {
+    .makeColor(#ff8b93);
+  }
+
+  .d-red {
+    .makeColor(#b30000);
+  }
+
+  .l-violet {
+    .makeColor(violet);
+  }
+
+  .d-violet {
+    .makeColor(#683968);
+  }
+
+}
+

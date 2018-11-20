@@ -1,16 +1,18 @@
 import React from 'react';
 import cn from 'classnames';
 import styles from './Token.less';
+import tokenColors from './Colors.less';
 import TokenRemoveIcon from './TokenRemoveIcon';
 
-export interface TokenClassNames {
-  token?: string;
-  activeToken?: string;
-  removeIcon?: string;
+export type TokenColorName = keyof typeof tokenColors;
+
+export interface TokenColors {
+  idle: TokenColorName;
+  active: TokenColorName;
 }
 
 export interface TokenProps {
-  classNames?: TokenClassNames;
+  colors?: TokenColors;
   isActive?: boolean;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
   onRemove?: React.MouseEventHandler<SVGElement>;
@@ -19,13 +21,12 @@ export interface TokenProps {
 const Token: React.SFC<TokenProps> = ({
   children,
   isActive,
-  classNames,
+  colors,
   onClick = () => undefined,
-  onRemove= () => undefined
+  onRemove = () => undefined
 }) => {
-  const tokenCN = classNames ? classNames.token : undefined;
-  const activeTokenCN = classNames ? classNames.activeToken : undefined;
-  const removeIconCN = classNames ? classNames.removeIcon : undefined;
+  const tokenCN = colors ? tokenColors[colors.idle] : undefined;
+  const activeTokenCN = colors ? tokenColors[colors.active] : undefined;
 
   const tokenClassNames = cn(
     styles.token,
@@ -33,11 +34,10 @@ const Token: React.SFC<TokenProps> = ({
     tokenCN
   );
 
-  const removeIconClassNames = cn(styles.removeIcon, removeIconCN);
   return (
     <div className={tokenClassNames} onClick={onClick}>
       {children}
-      <TokenRemoveIcon className={removeIconClassNames} onClick={onRemove} />
+      <TokenRemoveIcon className={styles.removeIcon} onClick={onRemove} />
     </div>
   );
 };
