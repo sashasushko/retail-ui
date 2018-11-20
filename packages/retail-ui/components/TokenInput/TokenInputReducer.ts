@@ -14,6 +14,7 @@ export type TokenInputActionType =
   | 'SET_AUTOCOMPLETE_ITEMS'
   | 'SET_ACTIVE_TOKENS'
   | 'REMOVE_ALL_ACTIVE_TOKENS'
+  | 'SET_LOADING'
   | 'CLEAR_INPUT';
 
 export function tokenInputReducer<T = string>(
@@ -53,6 +54,11 @@ export function tokenInputReducer<T = string>(
     }
     case 'CLEAR_INPUT': {
       return { inputValue: '', autocompleteItems: undefined };
+    }
+    case 'SET_LOADING': {
+      return {
+        loading: payload
+      };
     }
 
     default:

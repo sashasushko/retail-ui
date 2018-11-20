@@ -42,6 +42,7 @@ export interface TokenInputState {
   inputValue: string;
   inputValueWidth: number;
   preventBlur?: boolean;
+  loading?: boolean;
 }
 
 /**
@@ -51,6 +52,16 @@ export default class TokenInput extends React.Component<
   TokenInputProps,
   TokenInputState
 > {
+  public static defaultProps: TokenInputProps = {
+    selectedItems: [],
+    renderItem: (item: any) => item,
+    renderNotFound: () => 'Не найдено',
+    renderValue: (item: any) => item,
+    onChange: (items: string[]) => {
+      //
+    }
+  };
+
   public state: TokenInputState = {
     inputValue: '',
     inputValueWidth: 20,
@@ -152,24 +163,40 @@ export default class TokenInput extends React.Component<
             onKeyDown={this.handleKeyDown}
             onPaste={this.handleInputPaste}
           />
+          {showMenu && (
+            <TokenInputMenu
+              ref={this.tokensInputMenuRef}
+              items={this.state.autocompleteItems}
+              loading={this.state.loading}
+              opened={showMenu}
+              anchorElement={this.input!}
+              inputValue={this.state.inputValue}
+              renderNotFound={this.props.renderNotFound}
+              renderItem={this.props.renderItem!}
+              onAddItem={this.handleAddItem}
+              onChange={this.handleAddItem}
+              showAddItemHint={this.showAddItemHint}
+            />
+          )}
         </label>
-        {showMenu && (
-          <TokenInputMenu
-            ref={this.tokensInputMenuRef}
-            anchorElement={this.input!}
-            inputValue={this.state.inputValue}
-            onAddItem={this.handleAddItem}
-            autocompleteItems={this.state.autocompleteItems}
-            renderNotFound={this.props.renderNotFound}
-            renderItem={this.props.renderItem}
-            showAddItemHint={
-              this.type === TokenInputType.Combined &&
-              this.state.inputValue !== ''
-            }
-          />
-        )}
       </div>
     );
+  }
+
+  private get showAddItemHint() {
+    const items = this.state.autocompleteItems;
+    if (items && items.includes(this.state.inputValue)) {
+      return false;
+    }
+
+    const selectedItems = this.props.selectedItems;
+    if (selectedItems && selectedItems.includes(this.state.inputValue)) {
+      return false;
+    }
+
+    if (this.type === TokenInputType.Combined && this.state.inputValue !== '') {
+      return true;
+    }
   }
 
   private get type() {
@@ -302,7 +329,9 @@ export default class TokenInput extends React.Component<
       this.props.getItems &&
       (this.state.inputValue !== '' || !this.props.hideMenuIfEmptyInputValue)
     ) {
+      this.dispatch({ type: 'SET_LOADING', payload: true });
       const autocompleteItems = await this.props.getItems(query);
+      this.dispatch({ type: 'SET_LOADING', payload: false });
 
       const autocompleteItemsUnique = autocompleteItems.filter(
         item => !this.props.selectedItems.includes(item)
