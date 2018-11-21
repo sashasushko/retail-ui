@@ -20,6 +20,20 @@ async function getItems(query: string) {
   return ['aaa', 'bbb'].filter(s => s.includes(query));
 }
 
+const items: TokenModel[] = [
+  { id: '111', value: 'aaa' },
+  { id: '222', value: 'bbb' },
+  { id: '333', value: 'ccc' },
+  { id: '444', value: 'ddd' }
+];
+
+async function getModelItems(query: string): Promise<TokenModel[]> {
+  const sleep = (milliseconds: number) =>
+    new Promise(resolve => setTimeout(resolve, milliseconds));
+  await sleep(400);
+  return items.filter(s => s.value.includes(query));
+}
+
 class Wrapper extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
@@ -44,6 +58,52 @@ class Wrapper extends React.Component<any, any> {
   }
 }
 
+class MyTokenInput extends TokenInput<TokenModel> {}
+class WrapperCustomModel extends React.Component<
+  any,
+  { selectedItems: TokenModel[] }
+> {
+  constructor(props: any) {
+    super(props);
+    this.state = { selectedItems: [] };
+  }
+
+  public render() {
+    return (
+      <MyTokenInput
+        selectedItems={this.state.selectedItems}
+        renderItem={this.renderItem}
+        renderValue={this.renderValue}
+        itemToValue={this.itemToValue}
+        getItems={getModelItems}
+        onChange={this.onChange}
+        placeholder="placeholder"
+        type={TokenInputType.Combined}
+        renderTokenComponent={(token, value) => {
+          let style: TokenColors | undefined;
+          if (value && value.value.includes('aaa')) {
+            style = {
+              idle: 'l-red',
+              active: 'd-red'
+            };
+          }
+          return token(style);
+        }}
+      />
+    );
+  }
+
+  private renderItem = (item: TokenModel) => item.value;
+  private renderValue = (value: TokenModel) => value.value;
+  private itemToValue = (item: string): TokenModel => ({
+    value: item
+  });
+
+  private onChange = (selectedItems: TokenModel[]) => {
+    this.setState({ selectedItems });
+  };
+}
+
 class ColoredWrapper extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
@@ -63,13 +123,12 @@ class ColoredWrapper extends React.Component<any, any> {
         {...this.props}
         selectedItems={this.state.selectedItems}
         renderTokenComponent={(token, value) => {
-
           let style: TokenColors = {
             idle: 'l-green',
             active: 'd-green'
           };
 
-          if (value.includes('aaa')) {
+          if (value && value.includes('aaa')) {
             style = {
               idle: 'l-red',
               active: 'd-red'
@@ -86,6 +145,11 @@ class ColoredWrapper extends React.Component<any, any> {
 const FilledWrapper = (props: any) => (
   <Wrapper {...{ ...props, numberItems: 7 }} />
 );
+
+interface TokenModel {
+  id?: string;
+  value: string;
+}
 
 // tslint:disable jsx-no-lambda
 storiesOf('TokenInput', module)
@@ -158,4 +222,7 @@ storiesOf('TokenInput', module)
         <Wrapper getItems={getItems} type={TokenInputType.WithoutReference} />
       </Gapped>
     );
+  })
+  .add('combined generic token', () => {
+    return <WrapperCustomModel />;
   });

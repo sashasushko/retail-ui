@@ -7,15 +7,15 @@ import Menu from '../Menu/Menu';
 import MenuItem from '../MenuItem/MenuItem';
 import MenuSeparator from '../MenuSeparator/MenuSeparator';
 
-export interface TokenInputMenuProps extends ComboBoxMenuProps<string> {
+export interface TokenInputMenuProps<T> extends ComboBoxMenuProps<T> {
   anchorElement: HTMLElement;
   inputValue: string;
   showAddItemHint?: boolean;
   onAddItem: (item: string) => void;
 }
 
-export default class TokenInputMenu extends React.Component<
-  TokenInputMenuProps
+export default class TokenInputMenu<T = string> extends React.Component<
+  TokenInputMenuProps<T>
 > {
   private menu: Menu | null = null;
 

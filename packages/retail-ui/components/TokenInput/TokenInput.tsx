@@ -3,13 +3,17 @@ import { ChangeEvent, FocusEvent, KeyboardEvent } from 'react';
 import * as ReactDOM from 'react-dom';
 import TextWidthHelper from './TextWidthHelper';
 import TokenInputMenu from './TokenInputMenu';
-import { TokenInputAction, tokenInputReducer } from './TokenInputReducer';
+import {
+  TokenInputAction,
+  tokenInputReducer
+} from './TokenInputReducer';
 import LayoutEvents from '../../lib/LayoutEvents';
 import styles from './TokenInput.less';
 import cn from 'classnames';
 import Menu from '../Menu/Menu';
 import Token from '../Token';
 import { TokenColors, TokenProps } from '../Token/Token';
+import { MenuItemState } from '../MenuItem';
 
 export enum TokenInputType {
   WithReference,
@@ -17,28 +21,29 @@ export enum TokenInputType {
   Combined
 }
 
-export interface TokenInputProps {
+export interface TokenInputProps<T> {
   type?: TokenInputType;
-  selectedItems: string[];
-  onChange: (items: string[]) => void;
-  getItems?: (query: string) => Promise<string[]>;
+  selectedItems: T[];
+  onChange: (items: T[]) => void;
+  getItems?: (query: string) => Promise<T[]>;
   hideMenuIfEmptyInputValue?: boolean;
-  renderItem?: (item: string) => React.ReactNode;
-  renderValue?: (item: string) => React.ReactNode;
+  renderItem?: (item: T, state: MenuItemState) => React.ReactNode | undefined;
+  renderValue?: (item: T) => React.ReactNode;
   renderNotFound?: () => React.ReactNode;
+  itemToValue?: (item: string) => T;
   placeholder?: string;
   delimiters?: string[];
   error?: boolean;
   warning?: boolean;
   renderTokenComponent?: (
     token: (colors?: TokenColors) => React.ReactElement<TokenProps>,
-    value: string
+    value?: T
   ) => React.ReactElement<TokenProps>;
 }
 
-export interface TokenInputState {
-  autocompleteItems?: string[];
-  activeTokens: string[];
+export interface TokenInputState<T> {
+  autocompleteItems?: T[];
+  activeTokens: T[];
   inFocus?: boolean;
   inputValue: string;
   inputValueWidth: number;
@@ -49,21 +54,22 @@ export interface TokenInputState {
 /**
  * DRAFT - поле с токенами
  */
-export default class TokenInput extends React.Component<
-  TokenInputProps,
-  TokenInputState
+export default class TokenInput<T = string> extends React.Component<
+  TokenInputProps<T>,
+  TokenInputState<T>
 > {
-  public static defaultProps: TokenInputProps = {
+  public static defaultProps: TokenInputProps<any> = {
     selectedItems: [],
     renderItem: (item: any) => item,
     renderNotFound: () => 'Не найдено',
     renderValue: (item: any) => item,
-    onChange: (items: string[]) => {
+    itemToValue: (item: string) => item,
+    onChange: () => {
       //
     }
   };
 
-  public state: TokenInputState = {
+  public state: TokenInputState<T> = {
     inputValue: '',
     inputValueWidth: 20,
     activeTokens: []
@@ -71,7 +77,7 @@ export default class TokenInput extends React.Component<
 
   private root: HTMLDivElement | null = null;
   private input: HTMLInputElement | null = null;
-  private tokensInputMenu: TokenInputMenu | null = null;
+  private tokensInputMenu: TokenInputMenu<T> | null = null;
   private textHelper: TextWidthHelper | null = null;
   private wrapper: HTMLLabelElement | null = null;
 
@@ -81,8 +87,8 @@ export default class TokenInput extends React.Component<
   }
 
   public componentDidUpdate(
-    prevProps: TokenInputProps,
-    prevState: TokenInputState
+    prevProps: TokenInputProps<T>,
+    prevState: TokenInputState<T>
   ) {
     if (prevState.inputValue !== this.state.inputValue) {
       this.updateInputTextWidth();
@@ -91,7 +97,10 @@ export default class TokenInput extends React.Component<
       prevState.activeTokens.length === 0 &&
       this.state.activeTokens.length > 0
     ) {
-      this.dispatch({ type: 'SET_AUTOCOMPLETE_ITEMS', payload: undefined });
+      this.dispatch({
+        type: 'SET_AUTOCOMPLETE_ITEMS',
+        payload: undefined
+      });
     }
     if (prevProps.selectedItems.length !== this.props.selectedItems.length) {
       LayoutEvents.emit();
@@ -175,7 +184,7 @@ export default class TokenInput extends React.Component<
               renderNotFound={this.props.renderNotFound}
               renderItem={this.props.renderItem!}
               onAddItem={this.handleAddItem}
-              onChange={this.handleAddItem}
+              onChange={this.handleChange}
               showAddItemHint={this.showAddItemHint}
             />
           )}
@@ -186,12 +195,14 @@ export default class TokenInput extends React.Component<
 
   private get showAddItemHint() {
     const items = this.state.autocompleteItems;
-    if (items && items.includes(this.state.inputValue)) {
+    const value = this.props.itemToValue!(this.state.inputValue);
+
+    if (items && items.includes(value)) {
       return false;
     }
 
     const selectedItems = this.props.selectedItems;
-    if (selectedItems && selectedItems.includes(this.state.inputValue)) {
+    if (selectedItems && selectedItems.includes(value)) {
       return false;
     }
 
@@ -216,7 +227,7 @@ export default class TokenInput extends React.Component<
     return this.isCursorVisibleForState(this.state);
   }
 
-  private isCursorVisibleForState(state: TokenInputState) {
+  private isCursorVisibleForState(state: TokenInputState<T>) {
     return (
       state.inFocus &&
       (state.inputValue !== '' || state.activeTokens.length === 0)
@@ -225,7 +236,7 @@ export default class TokenInput extends React.Component<
 
   private rootRef = (node: HTMLDivElement) => (this.root = node);
   private inputRef = (node: HTMLInputElement) => (this.input = node);
-  private tokensInputMenuRef = (node: TokenInputMenu) =>
+  private tokensInputMenuRef = (node: TokenInputMenu<T>) =>
     (this.tokensInputMenu = node);
   private textHelperRef = (node: TextWidthHelper) => (this.textHelper = node);
   private wrapperRef = (node: HTMLLabelElement) => (this.wrapper = node);
@@ -321,7 +332,11 @@ export default class TokenInput extends React.Component<
         paste = paste.split(delimiter).join(delimiters[0]);
       }
       const tokens = paste.split(delimiters[0]);
-      this.handleAddItems(tokens as any[]);
+      const items = tokens
+        .map(token => this.props.itemToValue!(token))
+        .filter(item => !this.props.selectedItems.includes(item));
+      const newItems = this.props.selectedItems.concat(items);
+      this.props.onChange(newItems);
     }
   };
 
@@ -498,35 +513,48 @@ export default class TokenInput extends React.Component<
     }
   };
 
-  private handleAddItem = (item: string) => {
+  private handleChange = (item: T) => {
     if (this.props.selectedItems.includes(item)) {
       return;
     }
-    this.handleAddItems([item]);
+
+    const newItems = this.props.selectedItems.concat([item]);
+    this.props.onChange(newItems);
+
     this.dispatch({ type: 'CLEAR_INPUT' });
     this.tryGetItems();
   };
 
-  private handleAddItems(items: string[]) {
-    items = items.filter(item => !this.props.selectedItems.includes(item));
-    const newItems = this.props.selectedItems.concat(items);
-    this.props.onChange(newItems);
-  }
+  private handleAddItem = (item: string) => {
+    const value = this.props.itemToValue!(item);
+    if (this.props.selectedItems.includes(value)) {
+      return;
+    }
 
-  private handleRemoveToken = (item: string) => {
+    const newItems = this.props.selectedItems.concat([value]);
+    this.props.onChange(newItems);
+
+    this.dispatch({ type: 'CLEAR_INPUT' });
+    this.tryGetItems();
+  };
+
+  private handleRemoveToken = (item: T) => {
     this.props.onChange(this.props.selectedItems.filter(_ => _ !== item));
     const filteredActiveTokens = this.state.activeTokens.filter(
       _ => _ !== item
     );
+
     this.dispatch({ type: 'SET_ACTIVE_TOKENS', payload: filteredActiveTokens });
     if (filteredActiveTokens.length === 0) {
       this.focusInput();
     }
+
+    this.tryGetItems();
   };
 
   private handleTokenClick = (
     event: React.MouseEvent<HTMLElement>,
-    itemNew: string
+    itemNew: T
   ) => {
     const items = this.state.activeTokens;
     if (event.ctrlKey) {
@@ -565,7 +593,7 @@ export default class TokenInput extends React.Component<
   };
 
   private renderTokenFields = () => {
-    const renderValue = this.props.renderValue || ((item: string) => item);
+    const renderValue = this.props.renderValue || (item => item);
     return this.props.selectedItems.map(item => {
       const isActive = this.state.activeTokens.indexOf(item) !== -1;
       const handleIconClick: React.MouseEventHandler<SVGElement> = event => {
