@@ -8,7 +8,8 @@ import { TokenColors } from '../../Token/Token';
 const FixedWidthDecorator = (storyFn: any) => (
   <div
     className="tokens-test-container"
-    style={{ margin: 40, height: 200, width: 400, padding: 4 }}>
+    style={{ margin: 40, height: 200, width: 400, padding: 4 }}
+  >
     {storyFn()}
   </div>
 );

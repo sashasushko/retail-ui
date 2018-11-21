@@ -38,7 +38,8 @@ export default class TokenInputMenu<T = string> extends React.Component<
         positions={['bottom left']}
         anchorElement={this.props.anchorElement}
         margin={8}
-        popupOffset={8}>
+        popupOffset={8}
+      >
         <ComboBoxMenu
           items={items}
           loading={loading}
@@ -68,10 +69,12 @@ export default class TokenInputMenu<T = string> extends React.Component<
 
     const handleAddItemNoteClick = () => this.props.onAddItem(value);
 
+    // TODO при переопределении delimiters это будет выглядеть не очень
     const addItemNote = (
       <MenuItem
         onClick={handleAddItemNoteClick}
-        comment="Нажмите Enter или запятую">
+        comment="Нажмите Enter или запятую"
+      >
         Добавить {value}
       </MenuItem>
     );

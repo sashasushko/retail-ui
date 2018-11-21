@@ -3,10 +3,7 @@ import { ChangeEvent, FocusEvent, KeyboardEvent } from 'react';
 import * as ReactDOM from 'react-dom';
 import TextWidthHelper from './TextWidthHelper';
 import TokenInputMenu from './TokenInputMenu';
-import {
-  TokenInputAction,
-  tokenInputReducer
-} from './TokenInputReducer';
+import { TokenInputAction, tokenInputReducer } from './TokenInputReducer';
 import LayoutEvents from '../../lib/LayoutEvents';
 import styles from './TokenInput.less';
 import cn from 'classnames';
@@ -27,10 +24,10 @@ export interface TokenInputProps<T> {
   onChange: (items: T[]) => void;
   getItems?: (query: string) => Promise<T[]>;
   hideMenuIfEmptyInputValue?: boolean;
-  renderItem?: (item: T, state: MenuItemState) => React.ReactNode | undefined;
-  renderValue?: (item: T) => React.ReactNode;
-  renderNotFound?: () => React.ReactNode;
-  itemToValue?: (item: string) => T;
+  renderItem: (item: T, state: MenuItemState) => React.ReactNode | undefined;
+  renderValue: (item: T) => React.ReactNode;
+  renderNotFound: () => React.ReactNode;
+  itemToValue: (item: string) => T;
   placeholder?: string;
   delimiters?: string[];
   error?: boolean;
@@ -64,9 +61,7 @@ export default class TokenInput<T = string> extends React.Component<
     renderNotFound: () => 'Не найдено',
     renderValue: (item: any) => item,
     itemToValue: (item: string) => item,
-    onChange: () => {
-      //
-    }
+    onChange: () => void 0
   };
 
   public state: TokenInputState<T> = {
@@ -152,7 +147,8 @@ export default class TokenInput<T = string> extends React.Component<
             [styles.warning]: this.props.warning
           })}
           onMouseDown={this.handleWrapperMouseDown}
-          onMouseUp={this.handleWrapperMouseUp}>
+          onMouseUp={this.handleWrapperMouseUp}
+        >
           {this.renderTokenFields()}
           <input
             type="text"
