@@ -3,7 +3,7 @@ import * as React from 'react';
 import { storiesOf } from '@storybook/react';
 import Gapped from '../../Gapped';
 import TokenInput, { TokenInputType } from '../TokenInput';
-import { TokenColors } from "../../Token/Token";
+import { TokenColors } from '../../Token/Token';
 
 const FixedWidthDecorator = (storyFn: any) => (
   <div
@@ -62,12 +62,20 @@ class ColoredWrapper extends React.Component<any, any> {
       <TokenInput
         {...this.props}
         selectedItems={this.state.selectedItems}
-        TokenComponent={token => {
-          const violetStyle: TokenColors = {
-            idle: "l-green",
-            active: "d-green"
+        renderTokenComponent={(token, value) => {
+
+          let style: TokenColors = {
+            idle: 'l-green',
+            active: 'd-green'
           };
-          return token(violetStyle);
+
+          if (value.includes('aaa')) {
+            style = {
+              idle: 'l-red',
+              active: 'd-red'
+            };
+          }
+          return token(style);
         }}
         onChange={itemsNew => this.setState({ selectedItems: itemsNew })}
       />

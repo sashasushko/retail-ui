@@ -30,8 +30,9 @@ export interface TokenInputProps {
   delimiters?: string[];
   error?: boolean;
   warning?: boolean;
-  TokenComponent?: (
-    token: (colors?: TokenColors) => React.ReactElement<TokenProps>
+  renderTokenComponent?: (
+    token: (colors?: TokenColors) => React.ReactElement<TokenProps>,
+    value: string
   ) => React.ReactElement<TokenProps>;
 }
 
@@ -587,8 +588,8 @@ export default class TokenInput extends React.Component<
           children: renderValue(item)
         })!;
 
-      if (this.props.TokenComponent) {
-        return this.props.TokenComponent(TokenComponent);
+      if (this.props.renderTokenComponent) {
+        return this.props.renderTokenComponent(TokenComponent, item);
       }
 
       return TokenComponent();

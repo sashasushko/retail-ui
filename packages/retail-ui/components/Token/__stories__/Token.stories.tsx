@@ -47,7 +47,7 @@ storiesOf('Token', module)
     const a_default: TokenColors = { idle: 'a-default' };
     const i_default: TokenColors = { idle: 'i-default' };
 
-    const black: TokenColors = { idle: 'black' };
+    const black: TokenColors = { idle: 'black', active: "d-green" };
     const white: TokenColors = { idle: 'white' };
 
     const default_colors = [i_default, a_default];
