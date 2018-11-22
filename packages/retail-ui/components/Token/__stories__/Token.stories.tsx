@@ -75,4 +75,12 @@ storiesOf('Token', module)
         </Gapped>
       </>
     );
+  })
+  .add('validations', () => {
+    return (
+      <>
+        <Token error={true}>test</Token>
+        <Token warning={true} isActive>test</Token>
+      </>
+    );
   });

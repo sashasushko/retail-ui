@@ -14,6 +14,8 @@ export interface TokenColors {
 export interface TokenProps {
   colors?: TokenColors;
   isActive?: boolean;
+  error?: boolean;
+  warning?: boolean;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
   onRemove?: React.MouseEventHandler<SVGElement>;
 }
@@ -22,6 +24,8 @@ const Token: React.SFC<TokenProps> = ({
   children,
   isActive,
   colors,
+  error,
+  warning,
   onClick = () => undefined,
   onRemove = () => undefined
 }) => {
@@ -35,7 +39,11 @@ const Token: React.SFC<TokenProps> = ({
 
   const tokenClassNames = cn(
     styles.token,
-    { [activeTokenClassName]: isActive },
+    {
+      [activeTokenClassName]: isActive,
+      [styles.warning]: warning,
+      [styles.error]: error
+    },
     tokenClassName
   );
 
