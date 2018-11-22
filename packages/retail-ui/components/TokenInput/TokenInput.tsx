@@ -19,9 +19,10 @@ export enum TokenInputType {
 }
 
 export interface TokenInputProps<T> {
-  type?: TokenInputType;
   selectedItems: T[];
   onChange: (items: T[]) => void;
+  autoFocus?: boolean;
+  type?: TokenInputType;
   getItems?: (query: string) => Promise<T[]>;
   hideMenuIfEmptyInputValue?: boolean;
   renderItem: (item: T, state: MenuItemState) => React.ReactNode | undefined;
@@ -32,6 +33,7 @@ export interface TokenInputProps<T> {
   delimiters?: string[];
   error?: boolean;
   warning?: boolean;
+  disabled?: boolean;
   width: string | number;
   renderTokenComponent?: (
     token: (colors?: TokenColors) => React.ReactElement<TokenProps>,
@@ -52,10 +54,8 @@ export interface TokenInputState<T> {
 /**
  * DRAFT - поле с токенами
  */
-export default class TokenInput<T = string> extends React.Component<
-  TokenInputProps<T>,
-  TokenInputState<T>
-> {
+export default class TokenInput<T = string> extends React.Component<TokenInputProps<T>,
+  TokenInputState<T>> {
   public static defaultProps: TokenInputProps<any> = {
     selectedItems: [],
     renderItem: (item: any) => item,
@@ -81,6 +81,9 @@ export default class TokenInput<T = string> extends React.Component<
   public componentDidMount() {
     this.updateInputTextWidth();
     document.addEventListener('copy', this.handleCopy);
+    if (this.props.autoFocus) {
+      this.focusInput();
+    }
   }
 
   public componentDidUpdate(
@@ -159,6 +162,7 @@ export default class TokenInput<T = string> extends React.Component<
             style={inputInlineStyles}
             autoComplete="off"
             spellCheck={false}
+            disabled={this.props.disabled}
             className={styles.input}
             placeholder={
               this.props.selectedItems.length > 0
@@ -598,9 +602,7 @@ export default class TokenInput<T = string> extends React.Component<
         event.stopPropagation();
         this.handleRemoveToken(item);
       };
-      const handleTokenClick: React.MouseEventHandler<
-        HTMLDivElement
-      > = event => {
+      const handleTokenClick: React.MouseEventHandler<HTMLDivElement> = event => {
         event.stopPropagation();
         this.handleTokenClick(event, item);
       };

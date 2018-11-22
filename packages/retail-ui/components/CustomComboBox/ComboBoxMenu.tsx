@@ -3,6 +3,7 @@ import Menu from '../Menu/Menu';
 import MenuItem, { MenuItemState } from '../MenuItem/MenuItem';
 import Spinner from '../Spinner/Spinner';
 import { Nullable } from '../../typings/utility-types';
+import MenuSeparator from '../MenuSeparator/MenuSeparator';
 
 export interface ComboBoxMenuProps<T> {
   opened?: boolean;
@@ -55,8 +56,11 @@ class ComboBoxMenu<T> extends Component<ComboBoxMenuProps<T>> {
     if ((items == null || items.length === 0) && renderNotFound) {
       return (
         <Menu ref={refMenu}>
-          <MenuItem disabled>{renderNotFound()}</MenuItem>
-          {renderAddButton}
+          {renderAddButton ? (
+            renderAddButton
+          ) : (
+            <MenuItem disabled>{renderNotFound()}</MenuItem>
+          )}
         </Menu>
       );
     }
@@ -76,7 +80,10 @@ class ComboBoxMenu<T> extends Component<ComboBoxMenuProps<T>> {
       <Menu ref={refMenu} maxHeight={maxMenuHeight}>
         {items && items.map(this.renderItem)}
         {total}
-        {renderAddButton}
+        {renderAddButton && [
+          <MenuSeparator key="separator" />,
+          renderAddButton
+        ]}
       </Menu>
     );
   }

@@ -41,8 +41,8 @@ class Wrapper extends React.Component<any, any> {
       ? props.selectedItems
       : props.numberItems
         ? new Array(props.numberItems)
-            .fill(null)
-            .map((_, i) => i.toString().repeat(3))
+          .fill(null)
+          .map((_, i) => i.toString().repeat(3))
         : [];
     this.state = { selectedItems };
   }
@@ -59,10 +59,9 @@ class Wrapper extends React.Component<any, any> {
 }
 
 class MyTokenInput extends TokenInput<TokenModel> {}
-class WrapperCustomModel extends React.Component<
-  any,
-  { selectedItems: TokenModel[] }
-> {
+
+class WrapperCustomModel extends React.Component<any,
+  { selectedItems: TokenModel[] }> {
   constructor(props: any) {
     super(props);
     this.state = { selectedItems: [] };
@@ -111,8 +110,8 @@ class ColoredWrapper extends React.Component<any, any> {
       ? props.selectedItems
       : props.numberItems
         ? new Array(props.numberItems)
-            .fill(null)
-            .map((_, i) => i.toString().repeat(3))
+          .fill(null)
+          .map((_, i) => i.toString().repeat(3))
         : [];
     this.state = { selectedItems };
   }
@@ -157,9 +156,9 @@ storiesOf('TokenInput', module)
   .add('validations', () => {
     return (
       <Gapped vertical gap={10}>
-        <Wrapper getItems={getItems} placeholder="default" />
-        <Wrapper getItems={getItems} placeholder="warning" warning />
-        <Wrapper getItems={getItems} placeholder="error" error />
+        <Wrapper getItems={getItems} placeholder="default"/>
+        <Wrapper getItems={getItems} placeholder="warning" warning/>
+        <Wrapper getItems={getItems} placeholder="error" error/>
         <Wrapper
           getItems={getItems}
           placeholder="warning and error"
@@ -170,19 +169,19 @@ storiesOf('TokenInput', module)
     );
   })
   .add('empty with reference', () => {
-    return <Wrapper getItems={getItems} />;
+    return <Wrapper getItems={getItems}/>;
   })
   .add('colored empty with reference', () => {
-    return <ColoredWrapper getItems={getItems} />;
+    return <ColoredWrapper getItems={getItems}/>;
   })
   .add('empty without reference', () => {
-    return <Wrapper type={TokenInputType.WithoutReference} />;
+    return <Wrapper type={TokenInputType.WithoutReference}/>;
   })
   .add('empty combined', () => {
-    return <Wrapper type={TokenInputType.Combined} getItems={getItems} />;
+    return <Wrapper type={TokenInputType.Combined} getItems={getItems}/>;
   })
   .add('[with reference] filled', () => {
-    return <FilledWrapper getItems={getItems} />;
+    return <FilledWrapper getItems={getItems}/>;
   })
   .add('[without reference] filled', () => {
     return (
@@ -193,7 +192,7 @@ storiesOf('TokenInput', module)
     );
   })
   .add('[combined] filled', () => {
-    return <FilledWrapper type={TokenInputType.Combined} getItems={getItems} />;
+    return <FilledWrapper type={TokenInputType.Combined} getItems={getItems}/>;
   })
   .add('with long item 1', () => {
     return (
@@ -218,20 +217,35 @@ storiesOf('TokenInput', module)
   .add('multiple tokens', () => {
     return (
       <Gapped vertical gap={10}>
-        <FilledWrapper getItems={getItems} />
-        <Wrapper getItems={getItems} type={TokenInputType.WithoutReference} />
+        <FilledWrapper getItems={getItems}/>
+        <Wrapper getItems={getItems} type={TokenInputType.WithoutReference}/>
       </Gapped>
     );
   })
   .add('combined generic token', () => {
-    return <WrapperCustomModel />;
+    return <WrapperCustomModel/>;
   })
   .add('width token', () => {
     return (
       <Gapped vertical gap={10}>
-        <Wrapper getItems={getItems} width={'100%'} />
-        <Wrapper getItems={getItems} width={300} />
-        <Wrapper getItems={getItems} width={150} />
+        <Wrapper getItems={getItems} width={'100%'}/>
+        <Wrapper getItems={getItems} width={300}/>
+        <Wrapper getItems={getItems} width={150}/>
       </Gapped>
     );
-  });
+  })
+  .add('with autofocus', () => {
+    return (
+      <Gapped vertical gap={10}>
+        <Wrapper getItems={getItems} autoFocus={true}/>
+      </Gapped>
+    );
+  })
+  .add('disabled', () => {
+    return (
+      <Gapped vertical gap={10}>
+        <FilledWrapper getItems={getItems} disabled={true}/>
+      </Gapped>
+    );
+  })
+;

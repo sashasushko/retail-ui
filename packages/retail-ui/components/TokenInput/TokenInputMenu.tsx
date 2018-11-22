@@ -5,7 +5,6 @@ import ComboBoxMenu, {
 } from '../CustomComboBox/ComboBoxMenu';
 import Menu from '../Menu/Menu';
 import MenuItem from '../MenuItem/MenuItem';
-import MenuSeparator from '../MenuSeparator/MenuSeparator';
 
 export interface TokenInputMenuProps<T> extends ComboBoxMenuProps<T> {
   anchorElement: HTMLElement;
@@ -14,9 +13,7 @@ export interface TokenInputMenuProps<T> extends ComboBoxMenuProps<T> {
   onAddItem: (item: string) => void;
 }
 
-export default class TokenInputMenu<T = string> extends React.Component<
-  TokenInputMenuProps<T>
-> {
+export default class TokenInputMenu<T = string> extends React.Component<TokenInputMenuProps<T>> {
   private menu: Menu | null = null;
 
   public render() {
@@ -70,15 +67,15 @@ export default class TokenInputMenu<T = string> extends React.Component<
     const handleAddItemNoteClick = () => this.props.onAddItem(value);
 
     // TODO при переопределении delimiters это будет выглядеть не очень
-    const addItemNote = (
+    const comment = 'Нажмите Enter или запятую';
+
+    return (
       <MenuItem
         onClick={handleAddItemNoteClick}
-        comment="Нажмите Enter или запятую"
+        comment={comment}
       >
         Добавить {value}
       </MenuItem>
     );
-
-    return [<MenuSeparator key="separator" />, addItemNote];
   };
 }
