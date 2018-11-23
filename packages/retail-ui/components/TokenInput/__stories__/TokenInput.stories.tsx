@@ -20,7 +20,7 @@ async function getItems(query: string) {
   return ['aaa', 'bbb'].filter(s => s.includes(query));
 }
 
-const items: TokenModel[] = [
+const getGenericItems: () => TokenModel[] = () => [
   { id: '111', value: 'aaa' },
   { id: '222', value: 'bbb' },
   { id: '333', value: 'ccc' },
@@ -31,7 +31,7 @@ async function getModelItems(query: string): Promise<TokenModel[]> {
   const sleep = (milliseconds: number) =>
     new Promise(resolve => setTimeout(resolve, milliseconds));
   await sleep(400);
-  return items.filter(s => s.value.includes(query));
+  return getGenericItems().filter(s => s.value.includes(query));
 }
 
 class Wrapper extends React.Component<any, any> {
@@ -53,6 +53,12 @@ class Wrapper extends React.Component<any, any> {
         {...this.props}
         selectedItems={this.state.selectedItems}
         onChange={itemsNew => this.setState({ selectedItems: itemsNew })}
+        renderTokenComponent={(token, value) => {
+          if (value === '222') {
+            return token({ error: true });
+          }
+          return token();
+        }}
       />
     );
   }
@@ -79,14 +85,14 @@ class WrapperCustomModel extends React.Component<any,
         placeholder="placeholder"
         type={TokenInputType.Combined}
         renderTokenComponent={(token, value) => {
-          let style: TokenColors | undefined;
+          let colors: TokenColors | undefined;
           if (value && value.value.includes('aaa')) {
-            style = {
+            colors = {
               idle: 'l-red',
               active: 'd-red'
             };
           }
-          return token(style);
+          return token({ colors });
         }}
       />
     );
@@ -122,18 +128,18 @@ class ColoredWrapper extends React.Component<any, any> {
         {...this.props}
         selectedItems={this.state.selectedItems}
         renderTokenComponent={(token, value) => {
-          let style: TokenColors = {
+          let colors: TokenColors = {
             idle: 'l-green',
             active: 'd-green'
           };
 
           if (value && value.includes('aaa')) {
-            style = {
+            colors = {
               idle: 'l-red',
               active: 'd-red'
             };
           }
-          return token(style);
+          return token({ colors });
         }}
         onChange={itemsNew => this.setState({ selectedItems: itemsNew })}
       />

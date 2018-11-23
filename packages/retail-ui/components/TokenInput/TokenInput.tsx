@@ -9,8 +9,9 @@ import styles from './TokenInput.less';
 import cn from 'classnames';
 import Menu from '../Menu/Menu';
 import Token from '../Token';
-import { TokenColors, TokenProps } from '../Token';
+import { TokenProps } from '../Token';
 import { MenuItemState } from '../MenuItem';
+import isEqual from 'lodash.isequal';
 
 export enum TokenInputType {
   WithReference,
@@ -36,7 +37,7 @@ export interface TokenInputProps<T> {
   disabled?: boolean;
   width: string | number;
   renderTokenComponent?: (
-    token: (colors?: TokenColors) => React.ReactElement<TokenProps>,
+    token: (props?: Partial<TokenProps>) => React.ReactElement<TokenProps>,
     value?: T
   ) => React.ReactElement<TokenProps>;
 }
@@ -195,16 +196,20 @@ export default class TokenInput<T = string> extends React.Component<TokenInputPr
     );
   }
 
+  private hasValueInItems = (items: T[], value: T) => {
+    return items.some(item => isEqual(item, value));
+  }
+
   private get showAddItemHint() {
     const items = this.state.autocompleteItems;
     const value = this.props.valueToItem!(this.state.inputValue);
 
-    if (items && items.includes(value)) {
+    if (items && this.hasValueInItems(items, value)) {
       return false;
     }
 
     const selectedItems = this.props.selectedItems;
-    if (selectedItems && selectedItems.includes(value)) {
+    if (selectedItems && this.hasValueInItems(selectedItems, value)) {
       return false;
     }
 
@@ -336,7 +341,7 @@ export default class TokenInput<T = string> extends React.Component<TokenInputPr
       const tokens = paste.split(delimiters[0]);
       const items = tokens
         .map(token => this.props.valueToItem!(token))
-        .filter(item => !this.props.selectedItems.includes(item));
+        .filter(item => !this.hasValueInItems(this.props.selectedItems, item));
       const newItems = this.props.selectedItems.concat(items);
       this.props.onChange(newItems);
     }
@@ -352,7 +357,7 @@ export default class TokenInput<T = string> extends React.Component<TokenInputPr
       this.dispatch({ type: 'SET_LOADING', payload: false });
 
       const autocompleteItemsUnique = autocompleteItems.filter(
-        item => !this.props.selectedItems.includes(item)
+        item => !this.hasValueInItems(this.props.selectedItems, item)
       );
       if (query === '' || this.state.inputValue !== '') {
         this.dispatch(
@@ -435,7 +440,7 @@ export default class TokenInput<T = string> extends React.Component<TokenInputPr
       case 'Backspace':
       case 'Delete':
         const itemsNew = this.props.selectedItems.filter(
-          item => !this.state.activeTokens.includes(item)
+          item => !this.hasValueInItems(this.state.activeTokens, item)
         );
         this.props.onChange(itemsNew);
         this.dispatch({ type: 'REMOVE_ALL_ACTIVE_TOKENS' }, () => {
@@ -509,14 +514,14 @@ export default class TokenInput<T = string> extends React.Component<TokenInputPr
       const itemNew = this.props.selectedItems[newItemIndex];
       const itemsNew = [
         itemNew,
-        ...this.state.activeTokens.filter(item => item !== itemNew)
+        ...this.state.activeTokens.filter(item => !isEqual(item, itemNew))
       ];
       this.dispatch({ type: 'SET_ACTIVE_TOKENS', payload: itemsNew });
     }
   };
 
   private handleChange = (item: T) => {
-    if (this.props.selectedItems.includes(item)) {
+    if (this.hasValueInItems(this.props.selectedItems, item)) {
       return;
     }
 
@@ -529,7 +534,7 @@ export default class TokenInput<T = string> extends React.Component<TokenInputPr
 
   private handleAddItem = (item: string) => {
     const value = this.props.valueToItem!(item);
-    if (this.props.selectedItems.includes(value)) {
+    if (this.hasValueInItems(this.props.selectedItems, value)) {
       return;
     }
 
@@ -541,10 +546,8 @@ export default class TokenInput<T = string> extends React.Component<TokenInputPr
   };
 
   private handleRemoveToken = (item: T) => {
-    this.props.onChange(this.props.selectedItems.filter(_ => _ !== item));
-    const filteredActiveTokens = this.state.activeTokens.filter(
-      _ => _ !== item
-    );
+    this.props.onChange(this.props.selectedItems.filter(_ => !isEqual(_, item)));
+    const filteredActiveTokens = this.state.activeTokens.filter(_ => !isEqual(_, item));
 
     this.dispatch({ type: 'SET_ACTIVE_TOKENS', payload: filteredActiveTokens });
     if (filteredActiveTokens.length === 0) {
@@ -560,8 +563,8 @@ export default class TokenInput<T = string> extends React.Component<TokenInputPr
   ) => {
     const items = this.state.activeTokens;
     if (event.ctrlKey) {
-      const newItems = this.state.activeTokens.includes(itemNew)
-        ? items.filter(item => item !== itemNew)
+      const newItems = this.hasValueInItems(this.state.activeTokens, itemNew)
+        ? items.filter(item => !isEqual(item, itemNew))
         : [...items, itemNew];
       this.dispatch({ type: 'SET_ACTIVE_TOKENS', payload: newItems });
     } else {
@@ -607,10 +610,12 @@ export default class TokenInput<T = string> extends React.Component<TokenInputPr
         this.handleTokenClick(event, item);
       };
 
-      const TokenComponent = (colors?: TokenColors) =>
+      const TokenComponent = ({ colors, error, warning }: Partial<TokenProps> = {}) =>
         Token({
           isActive,
           colors,
+          error,
+          warning,
           onClick: handleTokenClick,
           onRemove: handleIconClick,
           children: renderValue(item)
