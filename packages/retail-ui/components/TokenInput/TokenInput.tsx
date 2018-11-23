@@ -8,8 +8,7 @@ import LayoutEvents from '../../lib/LayoutEvents';
 import styles from './TokenInput.less';
 import cn from 'classnames';
 import Menu from '../Menu/Menu';
-import Token from '../Token';
-import { TokenProps } from '../Token';
+import Token, { TokenProps } from '../Token';
 import { MenuItemState } from '../MenuItem';
 import isEqual from 'lodash.isequal';
 
@@ -197,8 +196,12 @@ export default class TokenInput<T = string> extends React.Component<TokenInputPr
   }
 
   private hasValueInItems = (items: T[], value: T) => {
+    if (typeof value === 'string') {
+      return items.includes(value);
+    }
+    // todo: как то не очень
     return items.some(item => isEqual(item, value));
-  }
+  };
 
   private get showAddItemHint() {
     const items = this.state.autocompleteItems;
