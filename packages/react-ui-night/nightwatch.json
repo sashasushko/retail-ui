@@ -1,0 +1,29 @@
+{
+  "src_folders": "tests",
+  "webdriver": {
+    "host": "grid.testkontur.ru",
+    "port": "80",
+    "username": "screen-dbg",
+    "access_key": "shot",
+    "default_path_prefix": "/wd/hub"
+  },
+  "test_settings": {
+    "chrome": {
+      "desiredCapabilities": {
+        "browserName": "chrome"
+      }
+    },
+    "firefox": {
+      "desiredCapabilities": {
+        "browserName": "firefox"
+      }
+    },
+    "ie11": {
+      "desiredCapabilities": {
+        "browserName": "internet explorer",
+        "version": "11",
+        "ignoreProtectedModeSettings": true
+      }
+    }
+  }
+}

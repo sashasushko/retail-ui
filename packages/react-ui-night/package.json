@@ -1,0 +1,9 @@
+{
+  "name": "react-ui-night",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "nightwatch": "^1.0.17"
+  }
+}

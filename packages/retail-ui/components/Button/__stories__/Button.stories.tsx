@@ -8,7 +8,7 @@ import { ButtonSize, ButtonArrow } from '../Button';
 
 storiesOf('Button', module)
   .add('playground', () => {
-    return <Button>Hello</Button>;
+    return <Button>{window.navigator.userAgent}</Button>;
   })
   .add('different use', () => (
     <Gapped>
