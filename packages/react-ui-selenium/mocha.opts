@@ -1,3 +1,6 @@
---ui mocha-typescript
+--require ts-node/register
 --require source-map-support/register
+--require ./selenium.ts
+--ui selenium
+--timeout 30000
 ./tests/*
