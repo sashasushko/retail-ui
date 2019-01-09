@@ -490,4 +490,28 @@ storiesOf('SidePage', module)
       {textSample}
       {textSample}
     </div>
+  ))
+  .add('With long title', () => (
+    <SidePage>
+      <SidePage.Header>
+        On the other hand, we denounce with righteous indignation and dislike,
+        who are so beguiled and demoralized by the charms of pleasure of the
+        moment.
+      </SidePage.Header>
+      <SidePage.Body>
+        <div
+          id="scrollable-content"
+          style={{
+            height: 1500,
+            background: `repeating-linear-gradient(
+                          60deg,
+                          #fafafa,
+                          #fafafa 20px,
+                          #dfdede 20px,
+                          #dfdede 40px
+                        )`
+          }}
+        />
+      </SidePage.Body>
+    </SidePage>
   ));
