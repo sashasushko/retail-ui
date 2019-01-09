@@ -7,15 +7,17 @@ import { Builder, WebDriver, until, By } from "selenium-webdriver";
 describe("Button", () => {
   let driver: WebDriver | null = null;
   before(async () => {
+    console.log(Date.now());
     driver = await new Builder()
       .usingServer("http://screen-dbg:shot@grid.testkontur.ru/wd/hub")
       .withCapabilities({ browserName: "chrome" })
       .build();
+    console.log(Date.now());
   });
 
   it("idle", async () => {
     await driver!.get(
-      "http://10.34.0.154:6060/iframe.html?selectedKind=Button&selectedStory=playground"
+      "http://10.35.2.16:6060/iframe.html?selectedKind=Button&selectedStory=playground"
     );
     await driver!.wait(until.elementLocated(By.id("test-element")));
     const text = await driver!
@@ -27,6 +29,3 @@ describe("Button", () => {
     expect(text).to.equal("Hello", "Expected one to equal two.");
   });
 });
-
-// @ts-ignore
-log("123");

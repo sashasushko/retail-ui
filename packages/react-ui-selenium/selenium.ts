@@ -1,60 +1,125 @@
-import { Builder, WebDriver } from "selenium-webdriver";
-import Mocha, { Suite } from "mocha";
+// import { Builder, WebDriver } from "selenium-webdriver";
+import Mocha, {
+  Suite,
+  SuiteFunction,
+  Func,
+  AsyncFunc,
+  Test,
+  TestFunction
+} from "mocha";
 
-interface Config {
-  gridUrl: string;
-  hostUrl: string;
-  browsers: { [key: string]: { browserName: string } };
-}
+// interface Config {
+//   gridUrl: string;
+//   hostUrl: string;
+//   browsers: { [key: string]: { browserName: string } };
+// }
 
-const config: Config = {
-  gridUrl: "http://screen-dbg:shot@grid.testkontur.ru/wd/hub",
-  hostUrl: "http://10.34.0.154:6060/iframe.html",
-  browsers: {
-    chrome: { browserName: "chrome" },
-    firefox: { browserName: "firefox" },
-    ie11: { browserName: "internet explorer" }
-  }
-};
+// const config: Config = {
+//   gridUrl: "http://screen-dbg:shot@grid.testkontur.ru/wd/hub",
+//   hostUrl: "http://10.4.0.17:6060/iframe.html",
+//   browsers: {
+//     chrome: { browserName: "chrome" },
+//     firefox: { browserName: "firefox" },
+//     ie11: { browserName: "internet explorer" }
+//   }
+// };
 
 console.log("init");
 
 // @ts-ignore
-module.exports = Mocha.interfaces.selenium = function(suite: Suite) {
-  console.log("suite");
+module.exports = Mocha.interfaces.selenium = function seleniumInterface(
+  suite: Suite
+) {
+  const suites = [suite];
+  suite.on("pre-require", function preRequire(context, file, mocha) {
+    const common = require("mocha/lib/interfaces/common")(
+      suites,
+      context,
+      mocha
+    );
 
-  // // @ts-ignore
-  // const common = require("mocha/lib/interfaces/common")([suite], context);
-  // // @ts-ignore
-  // context.run = mocha.options.delay && common.runWithSuite(suite);
+    context.before = common.before;
+    context.after = common.after;
+    context.beforeEach = common.beforeEach;
+    context.afterEach = common.afterEach;
+    context.run = mocha.options.delay && common.runWithSuite(suite);
 
-  const browsers: Array<{ name: string; browser: WebDriver }> = [];
-
-  suite.beforeAll(async () => {
-    console.log("beforeAll");
-    // tslint:disable-next-line: forin
-    for (const name in config.browsers) {
-      const browser = await new Builder()
-        .usingServer(config.gridUrl)
-        .withCapabilities(config.browsers[name])
-        .build();
-      browsers.push({ name, browser });
+    function describe(title: string, fn: (this: Suite) => void): Suite {
+      return common.suite.create({ title, file, fn });
     }
-  });
+    function only(title: string, fn: (this: Suite) => void): Suite {
+      return common.suite.only({ title, file, fn });
+    }
+    function skip(title: string, fn: (this: Suite) => void): Suite {
+      return common.suite.skip({ title, file, fn });
+    }
+    // @ts-ignore
+    describe.only = only;
+    // @ts-ignore
+    describe.skip = skip;
 
-  suite.on("pre-require", context => {
-    console.log("pre-require");
-    const { describe } = context;
+    context.describe = context.context = describe as SuiteFunction;
+    context.xdescribe = context.xcontext = context.describe.skip;
+
+    function it(title: string, fn?: Func | AsyncFunc) {
+      const [currentSuite] = suites;
+      if (currentSuite.isPending()) {
+        fn = undefined;
+      }
+      const test = new Test(title, fn);
+      test.file = file;
+      currentSuite.addTest(test);
+      return test;
+    }
     // @ts-ignore
-    context.log = msg => console.log(msg);
-    // @ts-ignore
-    context.describe = function() {
-      console.log("describe", arguments[0]);
-      // @ts-ignore
-      return describe.apply(this, arguments);
+    it.only = function onlyIt(title: string, fn: Func | AsyncFunc): Test {
+      return common.test.only(mocha, context.it(title, fn));
     };
+    // @ts-ignore
+    it.skip = function skipIt(title: string): Test {
+      return context.it(title);
+    };
+    // @ts-ignore
+    it.retries = function retries(n: number): void {
+      // @ts-ignore
+      context.retries(n);
+    };
+
+    context.it = context.specify = it as TestFunction;
+    context.xit = context.xspecify = context.it.skip;
   });
 };
+
+// Redifine BDD
+// @ts-ignore
+// module.exports = Mocha.interfaces.selenium = function seleniumInterface(suite: Suite) {
+//   console.log("suite");
+
+//   const browsers: Array<{ name: string; browser: WebDriver }> = [];
+
+//   suite.beforeAll(async () => {
+//     console.log("beforeAll");
+//     // tslint:disable-next-line: forin
+//     for (const name in config.browsers) {
+//       const browser = await new Builder()
+//         .usingServer(config.gridUrl)
+//         .withCapabilities(config.browsers[name])
+//         .build();
+//       browsers.push({ name, browser });
+//     }
+//   });
+
+//   suite.on("pre-require", context => {
+//     console.log("pre-require");
+//     const { describe } = context;
+//     // @ts-ignore
+//     context.describe = function(title: string, fn: (this: Suite) => void) {
+//       console.log("describe", arguments[0]);
+
+//       return (describe as SuiteFunction).call(this, title, fn);
+//     };
+//   });
+// };
 
 // browsers
 // parallel
